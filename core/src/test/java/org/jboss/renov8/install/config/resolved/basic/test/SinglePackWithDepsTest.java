@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.config.resolved.test;
+package org.jboss.renov8.install.config.resolved.basic.test;
 
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
+import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.resolved.ResolvedPack;
@@ -29,7 +30,7 @@ import org.jboss.renov8.test.StrVersion;
  *
  * @author Alexey Loubyansky
  */
-public class BasicResolvedInstallWithDepsTest extends ResolvedInstallTestBase {
+public class SinglePackWithDepsTest extends ResolvedInstallTestBase {
 
     @Override
     protected void initPackSpecs() throws Exception {

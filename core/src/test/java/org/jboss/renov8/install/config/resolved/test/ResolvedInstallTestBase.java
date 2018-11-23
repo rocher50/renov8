@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.config.resolved.test;
+package org.jboss.renov8.install.config.resolved.test;
 
 import static org.junit.Assert.assertEquals;
 

@@ -17,6 +17,7 @@
 
 package org.jboss.renov8.test;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.jboss.renov8.Renov8Exception;
@@ -44,6 +45,10 @@ public class TestPackSpecLoader implements PackSpecLoader {
         final PackId id = location.getPackId();
         final Path p = baseDir.resolve(StringUtils.ensureValidFileName(id.getProducer()))
                 .resolve(StringUtils.ensureValidFileName(id.getVersion().toString()));
+        if(!Files.exists(p)) {
+            return null;
+        }
+        System.out.println("Load spec " + location);
         try {
             return PackSpecXmlParser.parse(p);
         } catch (Exception e) {

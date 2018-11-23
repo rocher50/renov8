@@ -63,28 +63,41 @@ public class InstallSpecResolver {
         return loaders;
     }
 
-    public static InstallSpecResolver newInstance() throws Renov8Exception {
-        return newInstance(getDefaultSpecLoaders());
+    public static InstallSpecResolver newInstance() {
+        return new InstallSpecResolver();
     }
 
-    public static InstallSpecResolver newInstance(List<PackSpecLoader> specLoaders) throws Renov8Exception {
-        if(specLoaders.isEmpty()) {
-            throw new Renov8Exception("No PackSpecLoader configured");
-        }
-        return new InstallSpecResolver(specLoaders);
-    }
-
-    private List<PackSpecLoader> specLoaders;
+    private List<PackSpecLoader> specLoaders = Collections.emptyList();
     private PackVersionOverridePolicy versionPolicy = PackVersionOverridePolicy.FIRST_RESOLVED;
     private Map<String, ProducerRef> producers = new HashMap<>();
 
-    protected InstallSpecResolver(List<PackSpecLoader> specLoaders) throws Renov8Exception {
-        this.specLoaders = specLoaders;
+    protected InstallSpecResolver() {
+    }
+
+    public InstallSpecResolver addPackSpecLoader(PackSpecLoader loader) {
+        if(specLoaders.isEmpty()) {
+            specLoaders = Collections.singletonList(loader);
+            return this;
+        }
+        if(specLoaders.size() == 1) {
+            specLoaders = new ArrayList<>(specLoaders);
+        }
+        specLoaders.add(loader);
+        return this;
+    }
+
+    public InstallSpecResolver setVersionOverridePolicy(PackVersionOverridePolicy policy) {
+        this.versionPolicy = policy;
+        return this;
     }
 
     public ResolvedInstall resolve(InstallConfig config) throws Renov8Exception {
         if(!config.hasPacks()) {
             throw new Renov8Exception("Config is empty");
+        }
+
+        if(specLoaders == null) {
+            specLoaders = getDefaultSpecLoaders();
         }
 
         for(PackConfig packConfig : config.getPacks()) {
@@ -102,15 +115,16 @@ public class InstallSpecResolver {
         final PackSpec spec = pRef.getSpec();
         final ResolvedPack.Builder packBuilder = ResolvedPack.builder(spec.getLocation());
         if(pRef.hasDeps()) {
-            pRef.setFlag(ProducerRef.RESOLVE_BRANCH);
+            pRef.setFlag(ProducerRef.VISITED);
             for(ProducerRef depRef : pRef.getDeps()) {
                 packBuilder.addDependency(depRef.getPackId().getProducer());
-                if(!depRef.isFlagOn(ProducerRef.RESOLVE_BRANCH)) {
+                if(!depRef.isFlagOn(ProducerRef.ORDERED) && !depRef.isFlagOn(ProducerRef.VISITED)) {
                     addResolvedPack(installBuilder, depRef);
                 }
             }
-            pRef.clearFlag(ProducerRef.RESOLVE_BRANCH);
+            pRef.clearFlag(ProducerRef.VISITED);
         }
+        pRef.setFlag(ProducerRef.ORDERED);
         installBuilder.addPack(packBuilder.build());
     }
 
@@ -121,31 +135,28 @@ public class InstallSpecResolver {
             pRef = new ProducerRef(pLoc.getPackId().getProducer());
             producers.put(pLoc.getPackId().getProducer(), pRef);
         }
+        if(parent != null) {
+            parent.addDep(pRef);
+        }
         if(!pRef.hasVersion()) {
             pRef.setSpec(loadPack(pLoc));
             pRef.increase();
-            pRef.setFlag(ProducerRef.RESOLVE_BRANCH);
-            if(parent != null) {
-                parent.addDep(pRef);
-            }
+            pRef.setFlag(ProducerRef.VISITED);
         } else if(!versionPolicy.override(pRef.getPackId(), pLoc.getPackId().getVersion())) {
             pRef.increase();
-            if(parent != null) {
-                parent.addDep(pRef);
-            }
             return true;
         } else {
             pRef.reset();
             pRef.setSpec(loadPack(pLoc));
             pRef.increase();
-            if(!pRef.setFlag(ProducerRef.RESOLVE_BRANCH)) {
+            if(!pRef.setFlag(ProducerRef.VISITED)) {
                 pRef.setFlag(ProducerRef.RERESOLVE_BRANCH);
                 return false;
             }
         }
 
         if (!pRef.getSpec().hasDependencies()) {
-            pRef.clearFlag(ProducerRef.RESOLVE_BRANCH);
+            pRef.clearFlag(ProducerRef.VISITED);
             return true;
         }
 
@@ -170,7 +181,7 @@ public class InstallSpecResolver {
             }
         }
 
-        pRef.clearFlag(ProducerRef.RESOLVE_BRANCH);
+        pRef.clearFlag(ProducerRef.VISITED);
         return true;
     }
 
@@ -181,6 +192,6 @@ public class InstallSpecResolver {
                 return packSpec;
             }
         }
-        throw new Renov8Exception("Failed to load component spec");
+        throw new Renov8Exception("Failed to locate spec for " + location);
     }
 }

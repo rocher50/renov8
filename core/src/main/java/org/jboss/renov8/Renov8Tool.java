@@ -17,16 +17,14 @@
 
 package org.jboss.renov8;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.installer.InstallContext;
 import org.jboss.renov8.installer.InstallSpecHandler;
 import org.jboss.renov8.pack.spec.loader.PackSpecLoader;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.spec.resolver.InstallSpecResolver;
+import org.jboss.renov8.spec.resolver.PackVersionOverridePolicy;
 
 /**
  *
@@ -38,15 +36,20 @@ public class Renov8Tool {
         return new Renov8Tool();
     }
 
-    private List<PackSpecLoader> packSpecLoaders = new ArrayList<>(0);
+    private InstallSpecResolver specResolver = InstallSpecResolver.newInstance();
 
     public Renov8Tool addPackSpecLoader(PackSpecLoader loader) {
-        packSpecLoaders.add(loader);
+        specResolver.addPackSpecLoader(loader);
+        return this;
+    }
+
+    public Renov8Tool setVersionOverridePolicy(PackVersionOverridePolicy policy) {
+        specResolver.setVersionOverridePolicy(policy);
         return this;
     }
 
     public ResolvedInstall resolveConfig(InstallConfig config) throws Renov8Exception {
-        return InstallSpecResolver.newInstance(packSpecLoaders).resolve(config);
+        return specResolver.resolve(config);
     }
 
     public ResolvedInstall install(InstallConfig config, InstallSpecHandler... handlers) throws Renov8Exception {

@@ -30,9 +30,10 @@ import org.jboss.renov8.spec.PackSpec;
  */
 class ProducerRef {
 
-    static final int DEAD_REF_BRANCH   = 0b001;
-    static final int RESOLVE_BRANCH    = 0b010;
-    static final int RERESOLVE_BRANCH  = 0b100;
+    static final int DEAD_REF_BRANCH   = 0b0001;
+    static final int ORDERED           = 0b0010;
+    static final int RERESOLVE_BRANCH  = 0b0100;
+    static final int VISITED           = 0b1000;
 
     final String producer;
     private int count;

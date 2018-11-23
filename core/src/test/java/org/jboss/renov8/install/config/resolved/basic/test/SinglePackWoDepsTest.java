@@ -15,39 +15,40 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.config.resolved.test;
-
-import static org.junit.Assert.assertEquals;
+package org.jboss.renov8.install.config.resolved.basic.test;
 
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
+import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.resolved.ResolvedPack;
 import org.jboss.renov8.spec.PackSpec;
-import org.jboss.renov8.test.Renov8TestBase;
 import org.jboss.renov8.test.StrVersion;
-import org.junit.Test;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class BasicResolvedInstallTest extends Renov8TestBase {
+public class SinglePackWoDepsTest extends ResolvedInstallTestBase {
 
     @Override
     protected void initPackSpecs() throws Exception {
         writePackSpec(PackSpec.builder(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))).build());
     }
 
-    @Test
-    public void testMain() throws Exception {
-        final ResolvedInstall spec = tool.resolveConfig(InstallConfig.builder()
+    @Override
+    protected InstallConfig installConfig() {
+        return InstallConfig.builder()
                 .addPack(PackConfig.forLocation(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))))
-                .build());
-        assertEquals(ResolvedInstall.builder()
+                .build();
+    }
+
+    @Override
+    protected ResolvedInstall resolvedInstall() {
+        return ResolvedInstall.builder()
                 .addPack(ResolvedPack.builder(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))).build())
-                .build(), spec);
+                .build();
     }
 }

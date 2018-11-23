@@ -45,6 +45,10 @@ public class PackSpec {
             return this;
         }
 
+        public Builder addDependency(PackLocation dep) {
+            return addDependency(PackConfig.forLocation(dep));
+        }
+
         public Builder addDependency(PackConfig dep) {
             deps.add(dep);
             return this;

@@ -55,6 +55,10 @@ public class ResolvedPack {
         return new Builder(location);
     }
 
+    public static ResolvedPack forLocation(PackLocation location) {
+        return builder(location).build();
+    }
+
     protected final PackLocation location;
     protected final List<String> deps;
 
