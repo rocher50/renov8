@@ -48,6 +48,11 @@ public class Renov8Tool {
         return this;
     }
 
+    public Renov8Tool setHierarchicalDepsResolver(boolean hierarchicalDepsResolver) {
+        specResolver.setHierarchicalResolution(hierarchicalDepsResolver);
+        return this;
+    }
+
     public ResolvedInstall resolveConfig(InstallConfig config) throws Renov8Exception {
         return specResolver.resolve(config);
     }

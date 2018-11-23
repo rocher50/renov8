@@ -75,6 +75,10 @@ class ProducerRef {
         return spec == null ? null : spec.getId();
     }
 
+    boolean isMissingDeps() {
+        return deps.size() != spec.getDependencies().size();
+    }
+
     void addDep(ProducerRef dep) {
         deps.add(dep);
     }

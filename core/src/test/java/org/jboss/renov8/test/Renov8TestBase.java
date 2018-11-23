@@ -48,7 +48,9 @@ public class Renov8TestBase {
         packSpecsDir = workDir.resolve("pack-specs");
         Files.createDirectories(packSpecsDir);
         packSpecLoader = new TestPackSpecLoader(packSpecsDir);
-        tool = Renov8Tool.newInstance().addPackSpecLoader(packSpecLoader);
+        tool = Renov8Tool.newInstance()
+                .addPackSpecLoader(packSpecLoader)
+                .setHierarchicalDepsResolver(isHierarchicalDepsResolver());
         final PackVersionOverridePolicy versionOverride = versionOverride();
         if(versionOverride != null) {
             tool.setVersionOverridePolicy(versionOverride);
@@ -57,6 +59,10 @@ public class Renov8TestBase {
     }
 
     protected void initPackSpecs() throws Exception {
+    }
+
+    protected boolean isHierarchicalDepsResolver() {
+        return false;
     }
 
     protected PackVersionOverridePolicy versionOverride() {

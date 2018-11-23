@@ -40,6 +40,10 @@ import org.jboss.renov8.spec.PackSpec;
  */
 public class InstallSpecResolver {
 
+    public interface DepsResolver {
+        boolean resolveDeps(ProducerRef parent, List<PackConfig> depConfigs) throws Renov8Exception;
+    }
+
     private static List<PackSpecLoader> defaultSpecLoaders;
 
     private static synchronized List<PackSpecLoader> getDefaultSpecLoaders() throws Renov8Exception {
@@ -70,6 +74,8 @@ public class InstallSpecResolver {
     private List<PackSpecLoader> specLoaders = Collections.emptyList();
     private PackVersionOverridePolicy versionPolicy = PackVersionOverridePolicy.FIRST_RESOLVED;
     private Map<String, ProducerRef> producers = new HashMap<>();
+    private boolean hierarchicalDepsResolver;
+    private DepsResolver depsResolver;
 
     protected InstallSpecResolver() {
     }
@@ -91,18 +97,54 @@ public class InstallSpecResolver {
         return this;
     }
 
+    public InstallSpecResolver setHierarchicalResolution(boolean hierarchicalResolver) {
+        this.hierarchicalDepsResolver = hierarchicalResolver;
+        return this;
+    }
+
     public ResolvedInstall resolve(InstallConfig config) throws Renov8Exception {
         if(!config.hasPacks()) {
             throw new Renov8Exception("Config is empty");
         }
 
+        depsResolver = hierarchicalDepsResolver ?
+                new DepsResolver() {
+                    @Override
+                    public boolean resolveDeps(ProducerRef parent, List<PackConfig> depConfigs) throws Renov8Exception {
+                        final List<ProducerRef> levelRefs = new ArrayList<>(depConfigs.size());
+                        int i = 0;
+                        while (i < depConfigs.size()) {
+                            final ProducerRef depRef = resolveRef(parent, depConfigs.get(i++));
+                            if(depRef == null) {
+                                return false;
+                            }
+                            levelRefs.add(depRef);
+                        }
+                        for(ProducerRef depRef : levelRefs) {
+                            if(depRef.isMissingDeps()) {
+                                resolveMissingDeps(depRef);
+                            }
+                        }
+                        return true;
+                    }
+                } : new DepsResolver() {
+                    @Override
+                    public boolean resolveDeps(ProducerRef parent, List<PackConfig> depConfigs) throws Renov8Exception {
+                        int i = 0;
+                        while (i < depConfigs.size()) {
+                            if (!resolvePack(parent, depConfigs.get(i++))) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                };
+
         if(specLoaders == null) {
             specLoaders = getDefaultSpecLoaders();
         }
 
-        for(PackConfig packConfig : config.getPacks()) {
-            resolvePack(null, packConfig);
-        }
+        depsResolver.resolveDeps(null, config.getPacks());
 
         final ResolvedInstall.Builder specBuilder = ResolvedInstall.builder();
         for(PackConfig packConfig : config.getPacks()) {
@@ -129,6 +171,24 @@ public class InstallSpecResolver {
     }
 
     private boolean resolvePack(ProducerRef parent, PackConfig packConfig) throws Renov8Exception {
+        final ProducerRef pRef = resolveRef(parent, packConfig);
+        if(pRef == null) {
+            return false;
+        }
+
+        if (pRef.isMissingDeps()) {
+            if(!resolveMissingDeps(pRef)) {
+                pRef.decrease();
+                pRef.clearFlag(ProducerRef.VISITED);
+                return false;
+            }
+        }
+
+        pRef.clearFlag(ProducerRef.VISITED);
+        return true;
+    }
+
+    private ProducerRef resolveRef(ProducerRef parent, PackConfig packConfig) throws Renov8Exception {
         final PackLocation pLoc = packConfig.getLocation();
         ProducerRef pRef = producers.get(pLoc.getPackId().getProducer());
         if(pRef == null) {
@@ -144,44 +204,33 @@ public class InstallSpecResolver {
             pRef.setFlag(ProducerRef.VISITED);
         } else if(!versionPolicy.override(pRef.getPackId(), pLoc.getPackId().getVersion())) {
             pRef.increase();
-            return true;
         } else {
             pRef.reset();
             pRef.setSpec(loadPack(pLoc));
             pRef.increase();
             if(!pRef.setFlag(ProducerRef.VISITED)) {
                 pRef.setFlag(ProducerRef.RERESOLVE_BRANCH);
+                return null;
+            }
+        }
+        return pRef;
+    }
+
+    private boolean resolveMissingDeps(ProducerRef parent) throws Renov8Exception {
+        List<PackConfig> deps = parent.getSpec().getDependencies();
+        while (true) {
+            if(!depsResolver.resolveDeps(parent, deps)) {
                 return false;
             }
-        }
-
-        if (!pRef.getSpec().hasDependencies()) {
-            pRef.clearFlag(ProducerRef.VISITED);
-            return true;
-        }
-
-        if(pRef.getSpec().hasDependencies()) {
-            List<PackConfig> deps = pRef.getSpec().getDependencies();
-            while (true) {
-                int i = 0;
-                while (i < deps.size()) {
-                    if (!resolvePack(pRef, deps.get(i++))) {
-                        pRef.decrease();
-                        return false;
-                    }
+            if (parent.isFlagOn(ProducerRef.RERESOLVE_BRANCH)) {
+                parent.clearFlag(ProducerRef.RERESOLVE_BRANCH);
+                deps = parent.getSpec().getDependencies();
+                if (!deps.isEmpty()) {
+                    continue;
                 }
-                if (pRef.isFlagOn(ProducerRef.RERESOLVE_BRANCH)) {
-                    pRef.clearFlag(ProducerRef.RERESOLVE_BRANCH);
-                    deps = pRef.getSpec().getDependencies();
-                    if (!deps.isEmpty()) {
-                        continue;
-                    }
-                }
-                break;
             }
+            break;
         }
-
-        pRef.clearFlag(ProducerRef.VISITED);
         return true;
     }
 

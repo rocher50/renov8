@@ -48,7 +48,7 @@ public class TestPackSpecLoader implements PackSpecLoader {
         if(!Files.exists(p)) {
             return null;
         }
-        System.out.println("Load spec " + location);
+        System.out.println("Load pack " + location);
         try {
             return PackSpecXmlParser.parse(p);
         } catch (Exception e) {
