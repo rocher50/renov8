@@ -21,39 +21,30 @@ package org.jboss.renov8.pack;
  *
  * @author Alexey Loubyansky
  */
-public class PackLocation {
+public class PackId {
 
-    public static PackLocation create(String producer, PackVersion version) {
-        return new PackLocation(new PackId(producer, version));
+    private final String producer;
+    private final PackVersion version;
+
+    public PackId(String producer, PackVersion version) {
+        this.producer = producer;
+        this.version = version;
     }
 
-    private final String repoType;
-    private final PackId packId;
-
-    public PackLocation(PackId packId) {
-        this(null, packId);
+    public String getProducer() {
+        return producer;
     }
 
-    public PackLocation(String repoType, PackId packId) {
-        assert packId != null : "packId is null";
-        this.repoType = repoType;
-        this.packId = packId;
-    }
-
-    public String getRepoType() {
-        return repoType;
-    }
-
-    public PackId getPackId() {
-        return packId;
+    public PackVersion getVersion() {
+        return version;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((packId == null) ? 0 : packId.hashCode());
-        result = prime * result + ((repoType == null) ? 0 : repoType.hashCode());
+        result = prime * result + ((producer == null) ? 0 : producer.hashCode());
+        result = prime * result + ((version == null) ? 0 : version.hashCode());
         return result;
     }
 
@@ -65,27 +56,24 @@ public class PackLocation {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        PackLocation other = (PackLocation) obj;
-        if (packId == null) {
-            if (other.packId != null)
+        PackId other = (PackId) obj;
+        if (producer == null) {
+            if (other.producer != null)
                 return false;
-        } else if (!packId.equals(other.packId))
+        } else if (!producer.equals(other.producer)) {
             return false;
-        if (repoType == null) {
-            if (other.repoType != null)
+        }
+        if (version == null) {
+            if (other.version != null)
                 return false;
-        } else if (!repoType.equals(other.repoType))
+        } else if (!version.equals(other.version)) {
             return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
-        if(repoType == null) {
-            return packId.toString();
-        }
-        final StringBuilder buf = new StringBuilder();
-        buf.append(packId).append('@').append(repoType);
-        return buf.toString();
+        return producer + ':' + version;
     }
 }

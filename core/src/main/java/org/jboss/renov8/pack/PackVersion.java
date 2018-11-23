@@ -15,27 +15,11 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.spec.pack.loader.test;
-
-import org.jboss.renov8.Renov8Exception;
-import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.pack.spec.loader.PackSpecLoader;
-import org.jboss.renov8.spec.PackSpec;
-import org.jboss.renov8.spec.PackSpecBuilder;
+package org.jboss.renov8.pack;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class TestPackSpecLoader implements PackSpecLoader {
-
-    @Override
-    public PackSpec loadSpec(PackLocation location) throws Renov8Exception {
-        System.out.println("Loading pack spec for " + location);
-        final PackSpecBuilder builder = new PackSpecBuilder();
-        builder.setLocation(location);
-        builder.setId(location.getCoords());
-        builder.setVersion("latest");
-        return builder.build();
-    }
+public interface PackVersion extends Comparable<PackVersion> {
 }

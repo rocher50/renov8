@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jboss.renov8.Renov8Exception;
-import org.jboss.renov8.spec.InstallSpec;
+import org.jboss.renov8.resolved.ResolvedInstall;
 
 /**
  *
@@ -29,19 +29,19 @@ import org.jboss.renov8.spec.InstallSpec;
  */
 public class InstallContext {
 
-    public static InstallContext newInstance(InstallSpec spec, List<InstallSpecHandler> handlers) {
+    public static InstallContext newInstance(ResolvedInstall spec, List<InstallSpecHandler> handlers) {
         return new InstallContext(spec, handlers);
     }
 
-    private InstallSpec spec;
+    private ResolvedInstall spec;
     private List<InstallSpecHandler> handlers = Collections.emptyList();
 
-    private InstallContext(InstallSpec spec, List<InstallSpecHandler> handlers) {
+    private InstallContext(ResolvedInstall spec, List<InstallSpecHandler> handlers) {
         this.spec = spec;
         this.handlers = handlers;
     }
 
-    public InstallSpec getSpec() {
+    public ResolvedInstall getSpec() {
         return spec;
     }
 

@@ -15,35 +15,34 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.spec;
+package org.jboss.renov8.resolved;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.utils.StringUtils;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class InstallSpec {
+public class ResolvedInstall {
 
     public static class Builder {
 
-        private Map<PackId, PackSpec> packs = new LinkedHashMap<>(0);
+        private Map<String, ResolvedPack> packs = new LinkedHashMap<>(0);
 
         protected Builder() {
         }
 
-        public Builder addPack(PackSpec pack) {
-            packs.put(pack.getId(), pack);
+        public Builder addPack(ResolvedPack pack) {
+            packs.put(pack.getId().getProducer(), pack);
             return this;
         }
 
-        public InstallSpec build() {
-            return new InstallSpec(this);
+        public ResolvedInstall build() {
+            return new ResolvedInstall(this);
         }
     }
 
@@ -51,9 +50,9 @@ public class InstallSpec {
         return new Builder();
     }
 
-    private final Map<PackId, PackSpec> packs;
+    private final Map<String, ResolvedPack> packs;
 
-    protected InstallSpec(Builder builder) {
+    protected ResolvedInstall(Builder builder) {
         packs = Collections.unmodifiableMap(builder.packs);
     }
 
@@ -61,7 +60,7 @@ public class InstallSpec {
         return !packs.isEmpty();
     }
 
-    public Map<PackId, PackSpec> getPacks() {
+    public Map<String, ResolvedPack> getPacks() {
         return packs;
     }
 
@@ -81,7 +80,7 @@ public class InstallSpec {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        InstallSpec other = (InstallSpec) obj;
+        ResolvedInstall other = (ResolvedInstall) obj;
         if (packs == null) {
             if (other.packs != null)
                 return false;
@@ -97,5 +96,4 @@ public class InstallSpec {
         StringUtils.append(buf, packs.values());
         return buf.append(']').toString();
     }
-
 }

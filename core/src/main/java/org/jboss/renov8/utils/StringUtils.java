@@ -48,4 +48,9 @@ public class StringUtils {
             buf.append(',').append(list.get(i));
         }
     }
+
+    public static String ensureValidFileName(String value) {
+        // replace characters that are invalid in paths
+        return value.replaceAll("[:\\(\\)\\[\\]\\,]", "_");
+    }
 }

@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.spec;
+package org.jboss.renov8.resolved;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.utils.StringUtils;
@@ -30,45 +30,37 @@ import org.jboss.renov8.utils.StringUtils;
  *
  * @author Alexey Loubyansky
  */
-public class PackSpec {
+public class ResolvedPack {
 
     public static class Builder {
 
         protected PackLocation location;
-        protected List<PackConfig> deps = new ArrayList<>(0);
+        protected List<String> deps = new ArrayList<>();
 
-        protected Builder() {
-        }
-
-        public Builder setLocation(PackLocation location) {
+        protected Builder(PackLocation location) {
             this.location = location;
+        }
+
+        public Builder addDependency(String producer) {
+            deps.add(producer);
             return this;
         }
 
-        public Builder addDependency(PackConfig dep) {
-            deps.add(dep);
-            return this;
-        }
-
-        public PackSpec build() {
-            return new PackSpec(this);
+        public ResolvedPack build() {
+            return new ResolvedPack(this);
         }
     }
 
     public static Builder builder(PackLocation location) {
-        return builder().setLocation(location);
-    }
-
-    public static Builder builder() {
-        return new Builder();
+        return new Builder(location);
     }
 
     protected final PackLocation location;
-    protected final List<PackConfig> deps;
+    protected final List<String> deps;
 
-    protected PackSpec(Builder builder) {
+    protected ResolvedPack(Builder builder) {
         this.location = builder.location;
-        this.deps = builder.deps.isEmpty() ? Collections.emptyList() : Collections.unmodifiableList(builder.deps);
+        this.deps = builder.deps.isEmpty() ? Collections.emptyList() : Arrays.asList(builder.deps.toArray(new String[builder.deps.size()]));
     }
 
     public PackLocation getLocation() {
@@ -83,7 +75,7 @@ public class PackSpec {
         return !deps.isEmpty();
     }
 
-    public List<PackConfig> getDependencies() {
+    public List<String> getDependencies() {
         return deps;
     }
 
@@ -104,7 +96,7 @@ public class PackSpec {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        PackSpec other = (PackSpec) obj;
+        ResolvedPack other = (ResolvedPack) obj;
         if (deps == null) {
             if (other.deps != null)
                 return false;

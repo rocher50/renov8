@@ -21,38 +21,48 @@ package org.jboss.renov8.pack;
  *
  * @author Alexey Loubyansky
  */
-public class PackLocation {
+public class PackProducer {
 
-    public static PackLocation create(String producer, PackVersion version) {
-        return new PackLocation(new PackId(producer, version));
+    public static PackProducer fromString(String str) {
+        if(str == null || str.isEmpty()) {
+            throw new IllegalArgumentException("str must be a non-empty string");
+        }
+        final int i = str.indexOf('@');
+        if(i < 0) {
+            return new PackProducer(str);
+        }
+        if(i == 0 || i == str.length() - 1) {
+            throw new IllegalArgumentException("The expression does not follow format COORDS@REPO_TYPE: " + str);
+        }
+        return new PackProducer(str.substring(i + 1), str.substring(0,  i));
     }
 
     private final String repoType;
-    private final PackId packId;
+    private final String name;
 
-    public PackLocation(PackId packId) {
-        this(null, packId);
+    public PackProducer(String name) {
+        this(null, name);
     }
 
-    public PackLocation(String repoType, PackId packId) {
-        assert packId != null : "packId is null";
+    public PackProducer(String repoType, String name) {
+        assert name != null : "name is null";
         this.repoType = repoType;
-        this.packId = packId;
+        this.name = name;
     }
 
     public String getRepoType() {
         return repoType;
     }
 
-    public PackId getPackId() {
-        return packId;
+    public String getName() {
+        return name;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((packId == null) ? 0 : packId.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((repoType == null) ? 0 : repoType.hashCode());
         return result;
     }
@@ -65,11 +75,11 @@ public class PackLocation {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        PackLocation other = (PackLocation) obj;
-        if (packId == null) {
-            if (other.packId != null)
+        PackProducer other = (PackProducer) obj;
+        if (name == null) {
+            if (other.name != null)
                 return false;
-        } else if (!packId.equals(other.packId))
+        } else if (!name.equals(other.name))
             return false;
         if (repoType == null) {
             if (other.repoType != null)
@@ -82,10 +92,10 @@ public class PackLocation {
     @Override
     public String toString() {
         if(repoType == null) {
-            return packId.toString();
+            return name;
         }
         final StringBuilder buf = new StringBuilder();
-        buf.append(packId).append('@').append(repoType);
+        buf.append(name).append('@').append(repoType);
         return buf.toString();
     }
 }

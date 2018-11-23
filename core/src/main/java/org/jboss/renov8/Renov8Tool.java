@@ -17,12 +17,15 @@
 
 package org.jboss.renov8;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.installer.InstallContext;
 import org.jboss.renov8.installer.InstallSpecHandler;
-import org.jboss.renov8.spec.InstallSpec;
+import org.jboss.renov8.pack.spec.loader.PackSpecLoader;
+import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.spec.resolver.InstallSpecResolver;
 
 /**
@@ -31,16 +34,23 @@ import org.jboss.renov8.spec.resolver.InstallSpecResolver;
  */
 public class Renov8Tool {
 
-    public static Renov8Tool getInstance() {
+    public static Renov8Tool newInstance() {
         return new Renov8Tool();
     }
 
-    public InstallSpec resolveSpec(InstallConfig config) throws Renov8Exception {
-        return InstallSpecResolver.getInstance().resolve(config);
+    private List<PackSpecLoader> packSpecLoaders = new ArrayList<>(0);
+
+    public Renov8Tool addPackSpecLoader(PackSpecLoader loader) {
+        packSpecLoaders.add(loader);
+        return this;
     }
 
-    public InstallSpec install(InstallConfig config, InstallSpecHandler... handlers) throws Renov8Exception {
-        final InstallSpec spec = resolveSpec(config);
+    public ResolvedInstall resolveConfig(InstallConfig config) throws Renov8Exception {
+        return InstallSpecResolver.newInstance(packSpecLoaders).resolve(config);
+    }
+
+    public ResolvedInstall install(InstallConfig config, InstallSpecHandler... handlers) throws Renov8Exception {
+        final ResolvedInstall spec = resolveConfig(config);
         InstallContext.newInstance(spec, Arrays.asList(handlers)).install();
         return spec;
     }

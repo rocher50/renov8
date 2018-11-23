@@ -21,21 +21,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.jboss.renov8.Renov8Exception;
-import org.jboss.renov8.Renov8Tool;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.installer.InstallContext;
 import org.jboss.renov8.installer.InstallSpecHandler;
+import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.spec.InstallSpec;
-import org.jboss.renov8.spec.PackSpecBuilder;
+import org.jboss.renov8.resolved.ResolvedInstall;
+import org.jboss.renov8.resolved.ResolvedPack;
+import org.jboss.renov8.spec.PackSpec;
+import org.jboss.renov8.test.Renov8TestBase;
+import org.jboss.renov8.test.StrVersion;
 import org.junit.Test;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class BasicInstallHandlerTest {
+public class BasicInstallHandlerTest extends Renov8TestBase {
 
     private static class TestInstallSpecHandler implements InstallSpecHandler {
         boolean called;
@@ -46,20 +49,21 @@ public class BasicInstallHandlerTest {
         }
     }
 
+    @Override
+    protected void initPackSpecs() throws Exception {
+        writePackSpec(PackSpec.builder(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))).build());
+    }
+
     @Test
     public void testMain() throws Exception {
 
         TestInstallSpecHandler handler = new TestInstallSpecHandler();
-        final InstallSpec spec = Renov8Tool.getInstance().install(InstallConfig.builder()
-                .addPack(PackConfig.forLocation(PackLocation.fromString("test.coords")))
+        final ResolvedInstall spec = tool.install(InstallConfig.builder()
+                .addPack(PackConfig.forLocation(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))))
                 .build(), handler);
         assertTrue(handler.called);
-        assertEquals(InstallSpec.builder()
-                .addPack(new PackSpecBuilder()
-                        .setLocation(PackLocation.fromString("test.coords"))
-                        .setId("test.coords")
-                        .setVersion("latest")
-                        .build())
+        assertEquals(ResolvedInstall.builder()
+                .addPack(ResolvedPack.builder(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))).build())
                 .build(), spec);
     }
 }
