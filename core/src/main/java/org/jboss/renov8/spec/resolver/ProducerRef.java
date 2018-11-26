@@ -20,7 +20,6 @@ package org.jboss.renov8.spec.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.renov8.Renov8Exception;
 import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.spec.PackSpec;
 
@@ -30,19 +29,17 @@ import org.jboss.renov8.spec.PackSpec;
  */
 class ProducerRef {
 
-    static final int DEAD_REF_BRANCH   = 0b0001;
-    static final int ORDERED           = 0b0010;
-    static final int RERESOLVE_BRANCH  = 0b0100;
-    static final int VISITED           = 0b1000;
+    static final int ORDERED           = 0b1;
+    static final int VISITED           = 0b01;
 
     final String producer;
-    private int count;
-    private PackSpec spec;
+    final PackSpec spec;
     private List<ProducerRef> deps = new ArrayList<>(0);
     private int status;
 
-    protected ProducerRef(String producer) {
+    protected ProducerRef(String producer, PackSpec spec) {
         this.producer = producer;
+        this.spec = spec;
     }
 
     boolean isFlagOn(int flag) {
@@ -63,23 +60,11 @@ class ProducerRef {
         }
     }
 
-    void setSpec(PackSpec spec) {
-        this.spec = spec;
-    }
-
-    PackSpec getSpec() {
-        return spec;
-    }
-
     PackId getPackId() {
         return spec == null ? null : spec.getId();
     }
 
-    boolean isMissingDeps() {
-        return deps.size() != spec.getDependencies().size();
-    }
-
-    void addDep(ProducerRef dep) {
+    void addDepRef(ProducerRef dep) {
         deps.add(dep);
     }
 
@@ -91,38 +76,6 @@ class ProducerRef {
         return deps;
     }
 
-    void increase() {
-        ++count;
-    }
-
-    void decrease() throws Renov8Exception {
-        if(count == 0) {
-            throw new IllegalStateException("Negative reference counter for producer " + producer);
-        }
-        if(--count == 0) {
-            reset();
-        }
-    }
-
-    void reset() throws Renov8Exception {
-        count = 0;
-        if (!deps.isEmpty()) {
-            final boolean clearFlag = setFlag(DEAD_REF_BRANCH);
-            for(ProducerRef dep : deps) {
-                if(!dep.setFlag(DEAD_REF_BRANCH)) {
-                    continue;
-                }
-                dep.decrease();
-                dep.clearFlag(DEAD_REF_BRANCH);
-            }
-            if(clearFlag) {
-                clearFlag(DEAD_REF_BRANCH);
-            }
-            deps.clear();
-        }
-        spec = null;
-    }
-
     boolean hasVersion() {
         return spec != null;
     }
@@ -132,7 +85,6 @@ class ProducerRef {
         final StringBuilder buf = new StringBuilder();
         buf.append('[');
         buf.append(producer);
-        buf.append(" refs=").append(count);
         if(spec != null) {
             buf.append(" spec=").append(spec);
         }

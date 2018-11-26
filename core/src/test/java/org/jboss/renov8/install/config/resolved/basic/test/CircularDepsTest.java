@@ -32,43 +32,43 @@ import org.jboss.renov8.test.StrVersion;
  */
 public class CircularDepsTest extends ResolvedInstallTestBase {
 
-    private static final PackLocation prod1 = PackLocation.create("producer1", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod2 = PackLocation.create("producer2", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod3 = PackLocation.create("producer3", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod4 = PackLocation.create("producer4", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod5 = PackLocation.create("producer5", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod6 = PackLocation.create("producer6", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod7 = PackLocation.create("producer7", new StrVersion("1.0.0.GA"));
+    private static final PackLocation A_1 = PackLocation.create("A", new StrVersion("1"));
+    private static final PackLocation B_1 = PackLocation.create("B", new StrVersion("1"));
+    private static final PackLocation C_1 = PackLocation.create("C", new StrVersion("1"));
+    private static final PackLocation D_1 = PackLocation.create("D", new StrVersion("1"));
+    private static final PackLocation E_1 = PackLocation.create("E", new StrVersion("1"));
+    private static final PackLocation F_1 = PackLocation.create("F", new StrVersion("1"));
+    private static final PackLocation G_1 = PackLocation.create("G", new StrVersion("1"));
 
     @Override
     protected void initPackSpecs() throws Exception {
 
-        writePackSpec(PackSpec.builder(prod1)
-                .addDependency(prod2)
+        writePackSpec(PackSpec.builder(A_1)
+                .addDependency(B_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod2)
-                .addDependency(prod3)
+        writePackSpec(PackSpec.builder(B_1)
+                .addDependency(C_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod3)
-                .addDependency(prod4)
+        writePackSpec(PackSpec.builder(C_1)
+                .addDependency(D_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod4)
-                .addDependency(prod5)
+        writePackSpec(PackSpec.builder(D_1)
+                .addDependency(E_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod5)
-                .addDependency(prod6)
+        writePackSpec(PackSpec.builder(E_1)
+                .addDependency(F_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod6)
-                .addDependency(prod7)
+        writePackSpec(PackSpec.builder(F_1)
+                .addDependency(G_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod7)
-                .addDependency(prod1)
+        writePackSpec(PackSpec.builder(G_1)
+                .addDependency(A_1)
                 .build());
 
     }
@@ -76,39 +76,39 @@ public class CircularDepsTest extends ResolvedInstallTestBase {
     @Override
     protected InstallConfig installConfig() {
         return InstallConfig.builder()
-                .addPack(PackConfig.forLocation(prod1))
+                .addPack(PackConfig.forLocation(A_1))
                 .build();
     }
 
     @Override
     protected ResolvedInstall resolvedInstall() {
         return ResolvedInstall.builder()
-                .addPack(ResolvedPack.builder(prod7)
-                        .addDependency(prod1.getPackId().getProducer())
+                .addPack(ResolvedPack.builder(G_1)
+                        .addDependency(A_1.getPackId().getProducer())
                         .build())
 
-                .addPack(ResolvedPack.builder(prod6)
-                        .addDependency(prod7.getPackId().getProducer())
+                .addPack(ResolvedPack.builder(F_1)
+                        .addDependency(G_1.getPackId().getProducer())
                         .build())
 
-                .addPack(ResolvedPack.builder(prod5)
-                        .addDependency(prod6.getPackId().getProducer())
+                .addPack(ResolvedPack.builder(E_1)
+                        .addDependency(F_1.getPackId().getProducer())
                         .build())
 
-                .addPack(ResolvedPack.builder(prod4)
-                        .addDependency(prod5.getPackId().getProducer())
+                .addPack(ResolvedPack.builder(D_1)
+                        .addDependency(E_1.getPackId().getProducer())
                         .build())
 
-                .addPack(ResolvedPack.builder(prod3)
-                        .addDependency(prod4.getPackId().getProducer())
+                .addPack(ResolvedPack.builder(C_1)
+                        .addDependency(D_1.getPackId().getProducer())
                         .build())
 
-                .addPack(ResolvedPack.builder(prod2)
-                        .addDependency(prod3.getPackId().getProducer())
+                .addPack(ResolvedPack.builder(B_1)
+                        .addDependency(C_1.getPackId().getProducer())
                         .build())
 
-                .addPack(ResolvedPack.builder(prod1)
-                        .addDependency(prod2.getPackId().getProducer())
+                .addPack(ResolvedPack.builder(A_1)
+                        .addDependency(B_1.getPackId().getProducer())
                         .build())
                 .build();
     }

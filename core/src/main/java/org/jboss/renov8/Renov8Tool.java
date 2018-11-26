@@ -24,7 +24,6 @@ import org.jboss.renov8.installer.InstallSpecHandler;
 import org.jboss.renov8.pack.spec.loader.PackSpecLoader;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.spec.resolver.InstallSpecResolver;
-import org.jboss.renov8.spec.resolver.PackVersionOverridePolicy;
 
 /**
  *
@@ -40,16 +39,6 @@ public class Renov8Tool {
 
     public Renov8Tool addPackSpecLoader(PackSpecLoader loader) {
         specResolver.addPackSpecLoader(loader);
-        return this;
-    }
-
-    public Renov8Tool setVersionOverridePolicy(PackVersionOverridePolicy policy) {
-        specResolver.setVersionOverridePolicy(policy);
-        return this;
-    }
-
-    public Renov8Tool setHierarchicalDepsResolver(boolean hierarchicalDepsResolver) {
-        specResolver.setHierarchicalResolution(hierarchicalDepsResolver);
         return this;
     }
 

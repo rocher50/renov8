@@ -24,7 +24,6 @@ import org.jboss.renov8.Renov8Tool;
 import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.spec.PackSpec;
-import org.jboss.renov8.spec.resolver.PackVersionOverridePolicy;
 import org.jboss.renov8.test.util.xml.PackSpecXmlWriter;
 import org.jboss.renov8.utils.IoUtils;
 import org.jboss.renov8.utils.StringUtils;
@@ -49,24 +48,11 @@ public class Renov8TestBase {
         Files.createDirectories(packSpecsDir);
         packSpecLoader = new TestPackSpecLoader(packSpecsDir);
         tool = Renov8Tool.newInstance()
-                .addPackSpecLoader(packSpecLoader)
-                .setHierarchicalDepsResolver(isHierarchicalDepsResolver());
-        final PackVersionOverridePolicy versionOverride = versionOverride();
-        if(versionOverride != null) {
-            tool.setVersionOverridePolicy(versionOverride);
-        }
+                .addPackSpecLoader(packSpecLoader);
         initPackSpecs();
     }
 
     protected void initPackSpecs() throws Exception {
-    }
-
-    protected boolean isHierarchicalDepsResolver() {
-        return false;
-    }
-
-    protected PackVersionOverridePolicy versionOverride() {
-        return null;
     }
 
     @After
