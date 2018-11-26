@@ -38,7 +38,7 @@ public class InstallSpec {
         }
 
         public Builder addPack(PackSpec pack) {
-            packs.put(pack.getId(), pack);
+            packs.put(pack.getLocation().getPackId(), pack);
             return this;
         }
 
@@ -97,5 +97,4 @@ public class InstallSpec {
         StringUtils.append(buf, packs.values());
         return buf.append(']').toString();
     }
-
 }

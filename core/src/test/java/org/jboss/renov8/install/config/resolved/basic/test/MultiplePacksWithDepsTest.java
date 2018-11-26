@@ -23,8 +23,8 @@ import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.resolved.ResolvedPack;
-import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.test.StrVersion;
+import org.jboss.renov8.test.TestPackSpec;
 
 /**
  *
@@ -43,27 +43,27 @@ public class MultiplePacksWithDepsTest extends ResolvedInstallTestBase {
     @Override
     protected void initPackSpecs() throws Exception {
 
-        writePackSpec(PackSpec.builder(prod1)
+        writePackSpec(TestPackSpec.builder(prod1)
                 .addDependency(prod2)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod2)
+        writePackSpec(TestPackSpec.builder(prod2)
                 .addDependency(prod5)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod3)
+        writePackSpec(TestPackSpec.builder(prod3)
                 .addDependency(prod6)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod4)
+        writePackSpec(TestPackSpec.builder(prod4)
                 .addDependency(prod7)
                 .build());
 
-        writePackSpec(PackSpec.builder(prod5).build());
+        writePackSpec(TestPackSpec.builder(prod5).build());
 
-        writePackSpec(PackSpec.builder(prod6).build());
+        writePackSpec(TestPackSpec.builder(prod6).build());
 
-        writePackSpec(PackSpec.builder(prod7)
+        writePackSpec(TestPackSpec.builder(prod7)
                 .addDependency(prod6)
                 .build());
 

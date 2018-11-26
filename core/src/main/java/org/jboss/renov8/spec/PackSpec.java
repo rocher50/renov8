@@ -14,123 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jboss.renov8.spec;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.utils.StringUtils;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class PackSpec {
+public interface PackSpec {
 
-    public static class Builder {
+    PackLocation getLocation();
 
-        protected PackLocation location;
-        protected List<PackConfig> deps = new ArrayList<>(0);
+    boolean hasDependencies();
 
-        protected Builder() {
-        }
-
-        public Builder setLocation(PackLocation location) {
-            this.location = location;
-            return this;
-        }
-
-        public Builder addDependency(PackLocation dep) {
-            return addDependency(PackConfig.forLocation(dep));
-        }
-
-        public Builder addDependency(PackConfig dep) {
-            deps.add(dep);
-            return this;
-        }
-
-        public PackSpec build() {
-            return new PackSpec(this);
-        }
-    }
-
-    public static Builder builder(PackLocation location) {
-        return builder().setLocation(location);
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    protected final PackLocation location;
-    protected final List<PackConfig> deps;
-
-    protected PackSpec(Builder builder) {
-        this.location = builder.location;
-        this.deps = builder.deps.isEmpty() ? Collections.emptyList() : Collections.unmodifiableList(builder.deps);
-    }
-
-    public PackLocation getLocation() {
-        return location;
-    }
-
-    public PackId getId() {
-        return location.getPackId();
-    }
-
-    public boolean hasDependencies() {
-        return !deps.isEmpty();
-    }
-
-    public List<PackConfig> getDependencies() {
-        return deps;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((deps == null) ? 0 : deps.hashCode());
-        result = prime * result + ((location == null) ? 0 : location.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        PackSpec other = (PackSpec) obj;
-        if (deps == null) {
-            if (other.deps != null)
-                return false;
-        } else if (!deps.equals(other.deps))
-            return false;
-        if (location == null) {
-            if (other.location != null)
-                return false;
-        } else if (!location.equals(other.location))
-            return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder buf = new StringBuilder();
-        buf.append('[');
-        buf.append(location);
-        if(!deps.isEmpty()) {
-            buf.append(" deps=");
-            StringUtils.append(buf, deps);
-        }
-        return buf.append(']').toString();
-    }
+    List<PackConfig> getDependencies();
 }

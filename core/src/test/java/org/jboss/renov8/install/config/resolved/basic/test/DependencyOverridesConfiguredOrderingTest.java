@@ -23,8 +23,8 @@ import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.resolved.ResolvedPack;
-import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.test.StrVersion;
+import org.jboss.renov8.test.TestPackSpec;
 
 /**
  *
@@ -39,12 +39,12 @@ public class DependencyOverridesConfiguredOrderingTest extends ResolvedInstallTe
 
     @Override
     protected void initPackSpecs() throws Exception {
-        writePackSpec(PackSpec.builder(prod1)
+        writePackSpec(TestPackSpec.builder(prod1)
                 .addDependency(PackConfig.forLocation(prod2))
                 .build());
-        writePackSpec(PackSpec.builder(prod2).build());
-        writePackSpec(PackSpec.builder(prod3).build());
-        writePackSpec(PackSpec.builder(prod4)
+        writePackSpec(TestPackSpec.builder(prod2).build());
+        writePackSpec(TestPackSpec.builder(prod3).build());
+        writePackSpec(TestPackSpec.builder(prod4)
                 .addDependency(PackConfig.forLocation(prod3))
                 .build());
     }

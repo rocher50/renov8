@@ -23,8 +23,8 @@ import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.resolved.ResolvedPack;
-import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.test.StrVersion;
+import org.jboss.renov8.test.TestPackSpec;
 
 /**
  *
@@ -34,10 +34,10 @@ public class MultiplePacksWoDepsTest extends ResolvedInstallTestBase {
 
     @Override
     protected void initPackSpecs() throws Exception {
-        writePackSpec(PackSpec.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))).build());
-        writePackSpec(PackSpec.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))).build());
-        writePackSpec(PackSpec.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))).build());
-        writePackSpec(PackSpec.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))).build());
+        writePackSpec(TestPackSpec.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))).build());
+        writePackSpec(TestPackSpec.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))).build());
+        writePackSpec(TestPackSpec.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))).build());
+        writePackSpec(TestPackSpec.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))).build());
     }
 
     @Override

@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import javax.xml.stream.XMLStreamException;
 
 import org.jboss.renov8.spec.PackSpec;
+import org.jboss.renov8.test.TestPackSpec;
 import org.jboss.renov8.xml.XmlParsers;
 
 /**
@@ -51,7 +52,7 @@ public class PackSpecXmlParser {
     }
 
     public PackSpec parse(final Reader input) throws XMLStreamException {
-        final PackSpec.Builder builder = PackSpec.builder();
+        final TestPackSpec.Builder builder = TestPackSpec.builder();
         XmlParsers.parse(input, builder);
         return builder.build();
     }

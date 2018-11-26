@@ -61,7 +61,7 @@ class ProducerRef {
     }
 
     PackId getPackId() {
-        return spec == null ? null : spec.getId();
+        return spec.getLocation().getPackId();
     }
 
     void addDepRef(ProducerRef dep) {
@@ -74,10 +74,6 @@ class ProducerRef {
 
     List<ProducerRef> getDeps() {
         return deps;
-    }
-
-    boolean hasVersion() {
-        return spec != null;
     }
 
     @Override

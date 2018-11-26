@@ -23,8 +23,8 @@ import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.resolved.ResolvedPack;
-import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.test.StrVersion;
+import org.jboss.renov8.test.TestPackSpec;
 
 /**
  *
@@ -41,23 +41,23 @@ public class DirectOverridesTransitiveTest extends ResolvedInstallTestBase {
     @Override
     protected void initPackSpecs() throws Exception {
 
-        writePackSpec(PackSpec.builder(A_1)
+        writePackSpec(TestPackSpec.builder(A_1)
                 .addDependency(B_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(A_2)
+        writePackSpec(TestPackSpec.builder(A_2)
                 .addDependency(PackConfig.forLocation(C_1))
                 .build());
 
-        writePackSpec(PackSpec.builder(B_1)
+        writePackSpec(TestPackSpec.builder(B_1)
                 .addDependency(PackConfig.forLocation(C_1))
                 .build());
 
-        writePackSpec(PackSpec.builder(B_2)
+        writePackSpec(TestPackSpec.builder(B_2)
                 .addDependency(A_2)
                 .build());
 
-        writePackSpec(PackSpec.builder(C_1)
+        writePackSpec(TestPackSpec.builder(C_1)
                 .build());
     }
 

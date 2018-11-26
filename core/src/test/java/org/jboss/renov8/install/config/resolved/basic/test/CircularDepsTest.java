@@ -23,8 +23,8 @@ import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.resolved.ResolvedInstall;
 import org.jboss.renov8.resolved.ResolvedPack;
-import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.test.StrVersion;
+import org.jboss.renov8.test.TestPackSpec;
 
 /**
  *
@@ -43,31 +43,31 @@ public class CircularDepsTest extends ResolvedInstallTestBase {
     @Override
     protected void initPackSpecs() throws Exception {
 
-        writePackSpec(PackSpec.builder(A_1)
+        writePackSpec(TestPackSpec.builder(A_1)
                 .addDependency(B_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(B_1)
+        writePackSpec(TestPackSpec.builder(B_1)
                 .addDependency(C_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(C_1)
+        writePackSpec(TestPackSpec.builder(C_1)
                 .addDependency(D_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(D_1)
+        writePackSpec(TestPackSpec.builder(D_1)
                 .addDependency(E_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(E_1)
+        writePackSpec(TestPackSpec.builder(E_1)
                 .addDependency(F_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(F_1)
+        writePackSpec(TestPackSpec.builder(F_1)
                 .addDependency(G_1)
                 .build());
 
-        writePackSpec(PackSpec.builder(G_1)
+        writePackSpec(TestPackSpec.builder(G_1)
                 .addDependency(A_1)
                 .build());
 
