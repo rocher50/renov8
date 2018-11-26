@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.spec.resolver;
+package org.jboss.renov8.resolver;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.renov8.pack.PackId;
-import org.jboss.renov8.pack.spec.PackSpec;
+import org.jboss.renov8.spec.PackSpec;
 
 /**
  *
@@ -58,10 +57,6 @@ class ProducerRef<P extends PackSpec> {
         if((status & flag) > 0) {
             status ^= flag;
         }
-    }
-
-    PackId getPackId() {
-        return spec.getLocation().getPackId();
     }
 
     void addDepRef(ProducerRef<P> dep) {

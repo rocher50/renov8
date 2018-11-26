@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.pack;
+package org.jboss.renov8;
 
 /**
  *

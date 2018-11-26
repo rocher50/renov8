@@ -17,7 +17,7 @@
 
 package org.jboss.renov8.config;
 
-import org.jboss.renov8.pack.PackLocation;
+import org.jboss.renov8.PackLocation;
 
 /**
  *

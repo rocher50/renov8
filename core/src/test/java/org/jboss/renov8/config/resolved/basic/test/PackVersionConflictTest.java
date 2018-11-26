@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.install.config.resolved.basic.test;
+package org.jboss.renov8.config.resolved.basic.test;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
-import org.jboss.renov8.pack.PackLocation;
+import org.jboss.renov8.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.test.TestPack;
 
 /**
@@ -35,17 +35,17 @@ public class PackVersionConflictTest extends ResolvedInstallTestBase {
     private static final PackLocation C_2 = location("C", "2");
 
     @Override
-    protected void initPackSpecs() throws Exception {
-        writePackSpec(TestPack.builder(A_1)
+    protected void createPacks() throws Exception {
+        createPack(TestPack.builder(A_1)
                 .addDependency(PackConfig.forLocation(C_1))
                 .build());
 
-        writePackSpec(TestPack.builder(B_1)
+        createPack(TestPack.builder(B_1)
                 .addDependency(C_2)
                 .build());
 
-        writePackSpec(TestPack.builder(C_1).build());
-        writePackSpec(TestPack.builder(C_2).build());
+        createPack(TestPack.builder(C_1).build());
+        createPack(TestPack.builder(C_2).build());
     }
 
     @Override

@@ -15,20 +15,34 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.pack;
+package org.jboss.renov8;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class PackId {
+public class PackLocation {
 
+    public static PackLocation create(String producer, PackVersion version) {
+        return new PackLocation(null, producer, null, null, version);
+    }
+
+    private final String repoId;
     private final String producer;
+    private final String channel;
+    private final String frequency;
     private final PackVersion version;
 
-    public PackId(String producer, PackVersion version) {
+    public PackLocation(String repoId, String producer, String channel, String frequency, PackVersion version) {
+        this.repoId = repoId;
         this.producer = producer;
+        this.channel = channel;
+        this.frequency = frequency;
         this.version = version;
+    }
+
+    public String getRepoId() {
+        return repoId;
     }
 
     public String getProducer() {
@@ -44,6 +58,7 @@ public class PackId {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((producer == null) ? 0 : producer.hashCode());
+        result = prime * result + ((repoId == null) ? 0 : repoId.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
         return result;
     }
@@ -56,24 +71,41 @@ public class PackId {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        PackId other = (PackId) obj;
+        PackLocation other = (PackLocation) obj;
         if (producer == null) {
             if (other.producer != null)
                 return false;
-        } else if (!producer.equals(other.producer)) {
+        } else if (!producer.equals(other.producer))
             return false;
-        }
+        if (repoId == null) {
+            if (other.repoId != null)
+                return false;
+        } else if (!repoId.equals(other.repoId))
+            return false;
         if (version == null) {
             if (other.version != null)
                 return false;
-        } else if (!version.equals(other.version)) {
+        } else if (!version.equals(other.version))
             return false;
-        }
         return true;
     }
 
     @Override
     public String toString() {
-        return producer + ':' + version;
+        final StringBuilder buf = new StringBuilder();
+        buf.append(producer);
+        if(repoId != null) {
+            buf.append('@').append(repoId);
+        }
+        if(channel != null) {
+            buf.append(':').append(channel);
+            if(frequency != null) {
+                buf.append('/').append(frequency);
+            }
+        }
+        if(version != null) {
+            buf.append('#').append(version);
+        }
+        return buf.toString();
     }
 }

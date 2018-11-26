@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.install.config.resolved.test;
+package org.jboss.renov8.config.resolved.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 
 import org.jboss.renov8.config.InstallConfig;
-import org.jboss.renov8.pack.spec.InstallSpec;
+import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.Renov8TestBase;
 import org.jboss.renov8.test.TestPack;
 import org.junit.Test;

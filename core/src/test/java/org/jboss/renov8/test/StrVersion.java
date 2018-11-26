@@ -17,7 +17,7 @@
 
 package org.jboss.renov8.test;
 
-import org.jboss.renov8.pack.PackVersion;
+import org.jboss.renov8.PackVersion;
 
 /**
  *

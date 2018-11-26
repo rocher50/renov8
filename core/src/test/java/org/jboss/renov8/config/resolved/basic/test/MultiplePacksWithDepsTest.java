@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.install.config.resolved.basic.test;
+package org.jboss.renov8.config.resolved.basic.test;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
-import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.pack.spec.InstallSpec;
+import org.jboss.renov8.config.resolved.test.ResolvedInstallTestBase;
+import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
 import org.jboss.renov8.test.TestPack;
 
@@ -29,31 +29,51 @@ import org.jboss.renov8.test.TestPack;
  *
  * @author Alexey Loubyansky
  */
-public class DependencyOverridesConfiguredOrderingTest extends ResolvedInstallTestBase {
+public class MultiplePacksWithDepsTest extends ResolvedInstallTestBase {
 
     private static final PackLocation A_1 = PackLocation.create("A", new StrVersion("1"));
     private static final PackLocation B_1 = PackLocation.create("B", new StrVersion("1"));
     private static final PackLocation C_1 = PackLocation.create("C", new StrVersion("1"));
     private static final PackLocation D_1 = PackLocation.create("D", new StrVersion("1"));
+    private static final PackLocation E_1 = PackLocation.create("E", new StrVersion("1"));
+    private static final PackLocation F_1 = PackLocation.create("F", new StrVersion("1"));
+    private static final PackLocation G_1 = PackLocation.create("G", new StrVersion("1"));
 
     private TestPack A_1_SPEC;
     private TestPack B_1_SPEC;
     private TestPack C_1_SPEC;
     private TestPack D_1_SPEC;
+    private TestPack E_1_SPEC;
+    private TestPack F_1_SPEC;
+    private TestPack G_1_SPEC;
 
     @Override
-    protected void initPackSpecs() throws Exception {
-        A_1_SPEC = writePackSpec(TestPack.builder(A_1)
-                .addDependency(PackConfig.forLocation(B_1))
+    protected void createPacks() throws Exception {
+
+        A_1_SPEC = createPack(TestPack.builder(A_1)
+                .addDependency(B_1)
                 .build());
 
-        B_1_SPEC = writePackSpec(TestPack.builder(B_1).build());
-
-        C_1_SPEC = writePackSpec(TestPack.builder(C_1).build());
-
-        D_1_SPEC = writePackSpec(TestPack.builder(D_1)
-                .addDependency(PackConfig.forLocation(C_1))
+        B_1_SPEC = createPack(TestPack.builder(B_1)
+                .addDependency(E_1)
                 .build());
+
+        C_1_SPEC = createPack(TestPack.builder(C_1)
+                .addDependency(F_1)
+                .build());
+
+        D_1_SPEC = createPack(TestPack.builder(D_1)
+                .addDependency(G_1)
+                .build());
+
+        E_1_SPEC = createPack(TestPack.builder(E_1).build());
+
+        F_1_SPEC = createPack(TestPack.builder(F_1).build());
+
+        G_1_SPEC = createPack(TestPack.builder(G_1)
+                .addDependency(F_1)
+                .build());
+
     }
 
     @Override
@@ -69,10 +89,13 @@ public class DependencyOverridesConfiguredOrderingTest extends ResolvedInstallTe
     @Override
     protected InstallSpec<TestPack> installSpec() {
         return InstallSpec.<TestPack>builder()
+                .addPack(E_1_SPEC)
                 .addPack(B_1_SPEC)
                 .addPack(A_1_SPEC)
-                .addPack(C_1_SPEC)
+                .addPack(F_1_SPEC)
+                .addPack(G_1_SPEC)
                 .addPack(D_1_SPEC)
+                .addPack(C_1_SPEC)
                 .build();
     }
 }

@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.pack.spec.PackSpec;
+import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.utils.StringUtils;
 
 /**

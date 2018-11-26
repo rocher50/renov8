@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.pack.spec;
+package org.jboss.renov8.spec;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.utils.StringUtils;
 
 /**
@@ -32,13 +31,13 @@ public class InstallSpec<P extends PackSpec> {
 
     public static class Builder<P extends PackSpec> {
 
-        private Map<PackId, P> packs = new LinkedHashMap<>(0);
+        private Map<String, P> packs = new LinkedHashMap<>(0);
 
         protected Builder() {
         }
 
         public Builder<P> addPack(P pack) {
-            packs.put(pack.getLocation().getPackId(), pack);
+            packs.put(pack.getLocation().getProducer(), pack);
             return this;
         }
 
@@ -51,7 +50,7 @@ public class InstallSpec<P extends PackSpec> {
         return new Builder<P>();
     }
 
-    private final Map<PackId, P> packs;
+    private final Map<String, P> packs;
 
     protected InstallSpec(Builder<P> builder) {
         packs = Collections.unmodifiableMap(builder.packs);
@@ -61,7 +60,7 @@ public class InstallSpec<P extends PackSpec> {
         return !packs.isEmpty();
     }
 
-    public Map<PackId, P> getPacks() {
+    public Map<String, P> getPacks() {
         return packs;
     }
 

@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.install.config.resolved.basic.test;
+package org.jboss.renov8.config.resolved.basic.test;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
-import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.pack.spec.InstallSpec;
+import org.jboss.renov8.config.resolved.test.ResolvedInstallTestBase;
+import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
 import org.jboss.renov8.test.TestPack;
 
@@ -41,25 +41,25 @@ public class DirectOverridesTransitiveTest extends ResolvedInstallTestBase {
     private TestPack B_2_SPEC;
 
     @Override
-    protected void initPackSpecs() throws Exception {
+    protected void createPacks() throws Exception {
 
-        A_1_SPEC = writePackSpec(TestPack.builder(A_1)
+        A_1_SPEC = createPack(TestPack.builder(A_1)
                 .addDependency(B_1)
                 .build());
 
-        writePackSpec(TestPack.builder(A_2)
+        createPack(TestPack.builder(A_2)
                 .addDependency(PackConfig.forLocation(C_1))
                 .build());
 
-        writePackSpec(TestPack.builder(B_1)
+        createPack(TestPack.builder(B_1)
                 .addDependency(PackConfig.forLocation(C_1))
                 .build());
 
-        B_2_SPEC = writePackSpec(TestPack.builder(B_2)
+        B_2_SPEC = createPack(TestPack.builder(B_2)
                 .addDependency(A_2)
                 .build());
 
-        writePackSpec(TestPack.builder(C_1)
+        createPack(TestPack.builder(C_1)
                 .build());
     }
 

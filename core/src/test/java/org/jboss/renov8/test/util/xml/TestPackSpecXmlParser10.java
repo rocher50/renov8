@@ -24,9 +24,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.pack.PackId;
-import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.test.StrVersion;
 import org.jboss.renov8.test.TestPack;
 import org.jboss.renov8.test.TestPack.Builder;
@@ -46,12 +45,14 @@ public class TestPackSpecXmlParser10 implements PlugableXmlParser<TestPack.Build
 
     public enum Element implements XmlNameProvider {
 
+        CHANNEL("channel"),
         DEP("dep"),
         DEPS("deps"),
+        FREQUENCY("frequency"),
         LOCATION("location"),
         PACK_SPEC("pack-spec"),
         PRODUCER("producer"),
-        REPO_TYPE("repo"),
+        REPO_ID("repo"),
         VERSION("version"),
 
         // default unknown element
@@ -60,13 +61,15 @@ public class TestPackSpecXmlParser10 implements PlugableXmlParser<TestPack.Build
         private static final Map<QName, Element> elements;
 
         static {
-            elements = new HashMap<>(8);
+            elements = new HashMap<>(10);
+            elements.put(new QName(NS, CHANNEL.name), CHANNEL);
             elements.put(new QName(NS, DEP.name), DEP);
             elements.put(new QName(NS, DEPS.name), DEPS);
+            elements.put(new QName(NS, FREQUENCY.name), FREQUENCY);
             elements.put(new QName(NS, LOCATION.name), LOCATION);
             elements.put(new QName(NS, PACK_SPEC.name), PACK_SPEC);
             elements.put(new QName(NS, PRODUCER.name), PRODUCER);
-            elements.put(new QName(NS, REPO_TYPE.name), REPO_TYPE);
+            elements.put(new QName(NS, REPO_ID.name), REPO_ID);
             elements.put(new QName(NS, VERSION.name), VERSION);
             elements.put(null, UNKNOWN);
         }
@@ -185,6 +188,8 @@ public class TestPackSpecXmlParser10 implements PlugableXmlParser<TestPack.Build
         ParsingUtils.parseNoAttributes(reader);
         String repoType = null;
         String producer = null;
+        String channel = null;
+        String frequency = null;
         String version = null;
         while (reader.hasNext()) {
             switch (reader.nextTag()) {
@@ -195,7 +200,7 @@ public class TestPackSpecXmlParser10 implements PlugableXmlParser<TestPack.Build
                     if(version == null) {
                         throw new XMLStreamException("version is missing", reader.getLocation());
                     }
-                    return new PackLocation(repoType, new PackId(producer, new StrVersion(version)));
+                    return new PackLocation(repoType, producer, channel, frequency, new StrVersion(version));
                 }
                 case XMLStreamConstants.START_ELEMENT: {
                     final Element element = Element.of(reader.getName());
@@ -203,11 +208,17 @@ public class TestPackSpecXmlParser10 implements PlugableXmlParser<TestPack.Build
                         case PRODUCER:
                             producer = reader.getElementText().trim();
                             break;
-                        case REPO_TYPE:
-                            repoType = reader.getElementText().trim();
-                            break;
                         case VERSION:
                             version = reader.getElementText().trim();
+                            break;
+                        case CHANNEL:
+                            channel = reader.getElementText().trim();
+                            break;
+                        case FREQUENCY:
+                            frequency = reader.getElementText().trim();
+                            break;
+                        case REPO_ID:
+                            repoType = reader.getElementText().trim();
                             break;
                         default:
                             throw ParsingUtils.unexpectedContent(reader);

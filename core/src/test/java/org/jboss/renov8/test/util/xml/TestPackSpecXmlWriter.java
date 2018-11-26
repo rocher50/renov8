@@ -19,10 +19,9 @@ package org.jboss.renov8.test.util.xml;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.pack.PackId;
-import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.pack.spec.PackSpec;
+import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.test.util.xml.TestPackSpecXmlParser10.Element;
 import org.jboss.renov8.xml.BaseXmlWriter;
 import org.jboss.renov8.xml.ElementNode;
@@ -59,11 +58,10 @@ public class TestPackSpecXmlWriter extends BaseXmlWriter<PackSpec> {
     }
 
     private void writeLocation(final ElementNode locEl, final PackLocation loc) {
-        final PackId packId = loc.getPackId();
-        addElement(locEl, Element.PRODUCER).addElementText(packId.getProducer());
-        addElement(locEl, Element.VERSION).addElementText(packId.getVersion().toString());
-        if(loc.getRepoType() != null) {
-            addElement(locEl, Element.REPO_TYPE).addElementText(loc.getRepoType());
+        addElement(locEl, Element.PRODUCER).addElementText(loc.getProducer());
+        addElement(locEl, Element.VERSION).addElementText(loc.getVersion().toString());
+        if(loc.getRepoId() != null) {
+            addElement(locEl, Element.REPO_ID).addElementText(loc.getRepoId());
         }
     }
 }

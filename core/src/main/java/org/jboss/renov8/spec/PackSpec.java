@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.renov8.pack.spec;
+package org.jboss.renov8.spec;
 
 import java.util.List;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.pack.PackLocation;
 
 /**
  *

@@ -15,20 +15,19 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.spec.resolver;
+package org.jboss.renov8.resolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.Renov8Exception;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.pack.spec.InstallSpec;
-import org.jboss.renov8.pack.spec.PackSpec;
-import org.jboss.renov8.pack.spec.PackSpecLoader;
+import org.jboss.renov8.spec.InstallSpec;
+import org.jboss.renov8.spec.PackSpec;
 
 /**
  *
@@ -36,16 +35,16 @@ import org.jboss.renov8.pack.spec.PackSpecLoader;
  */
 public class InstallSpecResolver<P extends PackSpec> {
 
-    public static <P extends PackSpec> InstallSpecResolver<P> newInstance(PackSpecLoader<P> packLoader) {
+    public static <P extends PackSpec> InstallSpecResolver<P> newInstance(PackResolver<P> packLoader) {
         return new InstallSpecResolver<P>(packLoader);
     }
 
-    private PackSpecLoader<P> packLoader;
+    private PackResolver<P> packResolver;
     private Map<String, ProducerRef<P>> producers = new HashMap<>();
     private final List<ProducerRef<P>> visited = new ArrayList<>();
 
-    protected InstallSpecResolver(PackSpecLoader<P> packLoader) {
-        this.packLoader = packLoader;
+    protected InstallSpecResolver(PackResolver<P> packResolver) {
+        this.packResolver = packResolver;
     }
 
     public InstallSpec<P> resolve(InstallConfig config) throws Renov8Exception {
@@ -57,7 +56,7 @@ public class InstallSpecResolver<P extends PackSpec> {
 
         final InstallSpec.Builder<P> specBuilder = InstallSpec.builder();
         for(PackConfig packConfig : config.getPacks()) {
-            addResolvedPack(specBuilder, producers.get(packConfig.getLocation().getPackId().getProducer()));
+            addResolvedPack(specBuilder, producers.get(packConfig.getLocation().getProducer()));
         }
         return specBuilder.build();
     }
@@ -81,17 +80,17 @@ public class InstallSpecResolver<P extends PackSpec> {
         int i = 0;
         while (i < depConfigs.size()) {
             final PackLocation pLoc = depConfigs.get(i++).getLocation();
-            ProducerRef<P> depRef = producers.get(pLoc.getPackId().getProducer());
+            ProducerRef<P> depRef = producers.get(pLoc.getProducer());
             if(depRef == null) {
-                depRef = new ProducerRef<P>(pLoc.getPackId().getProducer(), loadPack(pLoc));
-                producers.put(pLoc.getPackId().getProducer(), depRef);
+                depRef = new ProducerRef<P>(pLoc.getProducer(), packResolver.resolve(pLoc));
+                producers.put(pLoc.getProducer(), depRef);
                 depRef.setFlag(ProducerRef.VISITED);
                 visited.add(depRef);
             } else if(depRef.isFlagOn(ProducerRef.VISITED) ||
-                    depRef.getPackId().getVersion().equals(pLoc.getPackId().getVersion())) {
+                    depRef.spec.getLocation().getVersion().equals(pLoc.getVersion())) {
                 parentRef.addDepRef(depRef);
             } else {
-                throw new Renov8Exception(depRef.getPackId().getProducer() + " version conflict: " + depRef.getPackId().getVersion() + " vs " + pLoc.getPackId().getVersion());
+                throw new Renov8Exception(depRef.producer + " version conflict: " + depRef.spec.getLocation().getVersion() + " vs " + pLoc.getVersion());
             }
         }
         if(visited.size() == visitedOffset) {
@@ -111,13 +110,5 @@ public class InstallSpecResolver<P extends PackSpec> {
         while (i > visitedOffset) {
             visited.remove(--i).clearFlag(ProducerRef.VISITED);
         }
-    }
-
-    protected P loadPack(PackLocation location) throws Renov8Exception {
-        final P pack = packLoader.loadSpec(location);
-        if(pack != null) {
-            return pack;
-        }
-        throw new Renov8Exception("Failed to locate spec for " + location);
     }
 }

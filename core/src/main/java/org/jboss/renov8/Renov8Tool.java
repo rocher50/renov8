@@ -18,10 +18,10 @@
 package org.jboss.renov8;
 
 import org.jboss.renov8.config.InstallConfig;
-import org.jboss.renov8.pack.spec.InstallSpec;
-import org.jboss.renov8.pack.spec.PackSpec;
-import org.jboss.renov8.pack.spec.PackSpecLoader;
-import org.jboss.renov8.spec.resolver.InstallSpecResolver;
+import org.jboss.renov8.resolver.InstallSpecResolver;
+import org.jboss.renov8.resolver.PackResolver;
+import org.jboss.renov8.spec.InstallSpec;
+import org.jboss.renov8.spec.PackSpec;
 
 /**
  *
@@ -33,14 +33,14 @@ public class Renov8Tool<P extends PackSpec> {
         return new Renov8Tool<P>();
     }
 
-    private PackSpecLoader<P> packLoader;
+    private PackResolver<P> packResolver;
 
-    public Renov8Tool<P> setPackSpecLoader(PackSpecLoader<P> packLoader) {
-        this.packLoader = packLoader;
+    public Renov8Tool<P> setPackResolver(PackResolver<P> packLoader) {
+        this.packResolver = packLoader;
         return this;
     }
 
     public InstallSpec<P> resolveConfig(InstallConfig config) throws Renov8Exception {
-        return InstallSpecResolver.newInstance(packLoader).resolve(config);
+        return InstallSpecResolver.newInstance(packResolver).resolve(config);
     }
 }

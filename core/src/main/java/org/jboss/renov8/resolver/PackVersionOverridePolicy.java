@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.spec.resolver;
+package org.jboss.renov8.resolver;
 
+import org.jboss.renov8.PackLocation;
+import org.jboss.renov8.PackVersion;
 import org.jboss.renov8.Renov8Exception;
-import org.jboss.renov8.pack.PackId;
-import org.jboss.renov8.pack.PackVersion;
 
 /**
  *
@@ -29,31 +29,31 @@ public interface PackVersionOverridePolicy {
 
     PackVersionOverridePolicy FIRST_RESOLVED = new PackVersionOverridePolicy() {
         @Override
-        public boolean override(PackId resolvedId, PackVersion newVersion) {
+        public boolean override(PackLocation resolvedId, PackVersion newVersion) {
             return false;
         }
     };
 
     PackVersionOverridePolicy LAST_RESOLVED = new PackVersionOverridePolicy() {
         @Override
-        public boolean override(PackId resolvedId, PackVersion newVersion) {
+        public boolean override(PackLocation resolvedId, PackVersion newVersion) {
             return true;
         }
     };
 
     PackVersionOverridePolicy HIGHER_VERSION = new PackVersionOverridePolicy() {
         @Override
-        public boolean override(PackId resolvedId, PackVersion newVersion) {
+        public boolean override(PackLocation resolvedId, PackVersion newVersion) {
             return newVersion.compareTo(resolvedId.getVersion()) > 0;
         }
     };
 
     PackVersionOverridePolicy ERROR = new PackVersionOverridePolicy() {
         @Override
-        public boolean override(PackId resolvedId, PackVersion newVersion) throws Renov8Exception {
+        public boolean override(PackLocation resolvedId, PackVersion newVersion) throws Renov8Exception {
             throw new Renov8Exception(resolvedId.getProducer() + " version conflict: " + resolvedId.getVersion() + " vs " + newVersion);
         }
     };
 
-    boolean override(PackId resolvedId, PackVersion newVersion) throws Renov8Exception;
+    boolean override(PackLocation resolvedId, PackVersion newVersion) throws Renov8Exception;
 }

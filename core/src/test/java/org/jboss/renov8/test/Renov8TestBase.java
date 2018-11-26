@@ -20,9 +20,8 @@ package org.jboss.renov8.test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.Renov8Tool;
-import org.jboss.renov8.pack.PackId;
-import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.test.util.xml.TestPackSpecXmlWriter;
 import org.jboss.renov8.utils.IoUtils;
 import org.jboss.renov8.utils.StringUtils;
@@ -45,7 +44,7 @@ public class Renov8TestBase {
 
     private Path workDir;
     private Path packSpecsDir;
-    private TestPackLoader packSpecLoader;
+    private TestPackResolver packResolver;
     protected Renov8Tool<TestPack> tool;
 
     @Before
@@ -53,13 +52,13 @@ public class Renov8TestBase {
         workDir = IoUtils.createRandomTmpDir();
         packSpecsDir = workDir.resolve("pack-specs");
         Files.createDirectories(packSpecsDir);
-        packSpecLoader = new TestPackLoader(packSpecsDir);
+        packResolver = new TestPackResolver(packSpecsDir);
         tool = Renov8Tool.<TestPack>newInstance()
-                .setPackSpecLoader(packSpecLoader);
-        initPackSpecs();
+                .setPackResolver(packResolver);
+        createPacks();
     }
 
-    protected void initPackSpecs() throws Exception {
+    protected void createPacks() throws Exception {
     }
 
     @After
@@ -67,15 +66,14 @@ public class Renov8TestBase {
         IoUtils.recursiveDelete(workDir);
     }
 
-    protected TestPack writePackSpec(TestPack packSpec) throws Exception {
-        final PackId id = packSpec.getLocation().getPackId();
-        Path p = packSpecsDir.resolve(StringUtils.ensureValidFileName(id.getProducer()))
-                .resolve(StringUtils.ensureValidFileName(id.getVersion().toString()));
-        TestPackSpecXmlWriter.getInstance().write(packSpec, p);
-        return packSpec;
+    protected TestPack createPack(TestPack pack) throws Exception {
+        Path p = packSpecsDir.resolve(StringUtils.ensureValidFileName(pack.getLocation().getProducer()))
+                .resolve(StringUtils.ensureValidFileName(pack.getLocation().getVersion().toString()));
+        TestPackSpecXmlWriter.getInstance().write(pack, p);
+        return pack;
     }
 
-    protected TestPack loadPackSpec(PackLocation location) throws Exception {
-        return packSpecLoader.loadSpec(location);
+    protected TestPack resolvePack(PackLocation location) throws Exception {
+        return packResolver.resolve(location);
     }
 }

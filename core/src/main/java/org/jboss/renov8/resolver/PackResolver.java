@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.pack.spec;
+package org.jboss.renov8.resolver;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.Renov8Exception;
-import org.jboss.renov8.pack.PackLocation;
+import org.jboss.renov8.spec.PackSpec;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public interface PackSpecLoader<P extends PackSpec> {
+public interface PackResolver<P extends PackSpec> {
 
-    P loadSpec(PackLocation location) throws Renov8Exception;
+    P resolve(PackLocation location) throws Renov8Exception;
 }
