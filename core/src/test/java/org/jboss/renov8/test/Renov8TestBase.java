@@ -24,7 +24,6 @@ import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.Renov8Tool;
 import org.jboss.renov8.test.util.xml.TestPackSpecXmlWriter;
 import org.jboss.renov8.utils.IoUtils;
-import org.jboss.renov8.utils.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 
@@ -43,16 +42,16 @@ public class Renov8TestBase {
     }
 
     private Path workDir;
-    private Path packSpecsDir;
-    private TestPackResolver packResolver;
+    private Path packsDir;
+    protected TestPackResolver packResolver;
     protected Renov8Tool<TestPack> tool;
 
     @Before
     public void init() throws Exception {
         workDir = IoUtils.createRandomTmpDir();
-        packSpecsDir = workDir.resolve("pack-specs");
-        Files.createDirectories(packSpecsDir);
-        packResolver = new TestPackResolver(packSpecsDir);
+        packsDir = workDir.resolve("pack-specs");
+        Files.createDirectories(packsDir);
+        packResolver = new TestPackResolver(packsDir);
         tool = Renov8Tool.<TestPack>newInstance()
                 .setPackResolver(packResolver);
         createPacks();
@@ -67,13 +66,8 @@ public class Renov8TestBase {
     }
 
     protected TestPack createPack(TestPack pack) throws Exception {
-        Path p = packSpecsDir.resolve(StringUtils.ensureValidFileName(pack.getLocation().getProducer()))
-                .resolve(StringUtils.ensureValidFileName(pack.getLocation().getVersion().toString()));
+        Path p = TestPackResolver.resolvePackPath(packsDir, pack.location);
         TestPackSpecXmlWriter.getInstance().write(pack, p);
         return pack;
-    }
-
-    protected TestPack resolvePack(PackLocation location) throws Exception {
-        return packResolver.resolve(location);
     }
 }

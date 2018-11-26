@@ -17,10 +17,13 @@
 
 package org.jboss.renov8.test;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.jboss.renov8.PackLocation;
+import org.jboss.renov8.PackVersion;
 import org.jboss.renov8.Renov8Exception;
 import org.jboss.renov8.resolver.PackResolver;
 import org.jboss.renov8.test.util.xml.TestPackSpecXmlParser;
@@ -32,6 +35,13 @@ import org.jboss.renov8.utils.StringUtils;
  */
 public class TestPackResolver implements PackResolver<TestPack> {
 
+    public static Path resolvePackPath(Path baseDir, PackLocation location) {
+        Path p = baseDir.resolve(StringUtils.ensureValidFileName(location.getProducer()));
+        p = p.resolve(location.getChannel() != null ? location.getChannel() : "default");
+        p = p.resolve(StringUtils.ensureValidFileName(location.getVersion().toString()));
+        return p;
+    }
+
     private final Path baseDir;
 
     public TestPackResolver(Path dir) {
@@ -40,8 +50,7 @@ public class TestPackResolver implements PackResolver<TestPack> {
 
     @Override
     public TestPack resolve(PackLocation location) throws Renov8Exception {
-        final Path p = baseDir.resolve(StringUtils.ensureValidFileName(location.getProducer()))
-                .resolve(StringUtils.ensureValidFileName(location.getVersion().toString()));
+        final Path p = resolvePackPath(baseDir, location);
         if(!Files.exists(p)) {
             throw new Renov8Exception("Failed to locate " + location);
         }
@@ -51,5 +60,22 @@ public class TestPackResolver implements PackResolver<TestPack> {
         } catch (Exception e) {
             throw new Renov8Exception("Failed to parse pack-spec for " + location + " stored in " + p, e);
         }
+    }
+
+    @Override
+    public PackVersion getLatestVersion(PackLocation location) throws Renov8Exception {
+        final Path p = resolvePackPath(baseDir, location);
+        PackVersion highest = location.getVersion();
+        try(DirectoryStream<Path> stream = Files.newDirectoryStream(p.getParent())) {
+            for(Path packPath : stream) {
+                final StrVersion packVersion = new StrVersion(packPath.getFileName().toString());
+                if(packVersion.compareTo(highest) > 0) {
+                    highest = packVersion;
+                }
+            }
+        } catch (IOException e) {
+            throw new Renov8Exception("Failed to read directory " + p.getParent(), e);
+        }
+        return highest;
     }
 }

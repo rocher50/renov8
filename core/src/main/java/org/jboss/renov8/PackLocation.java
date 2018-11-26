@@ -49,6 +49,14 @@ public class PackLocation {
         return producer;
     }
 
+    public String getChannel() {
+        return channel;
+    }
+
+    public String getFrequency() {
+        return frequency;
+    }
+
     public PackVersion getVersion() {
         return version;
     }
@@ -57,6 +65,8 @@ public class PackLocation {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((channel == null) ? 0 : channel.hashCode());
+        result = prime * result + ((frequency == null) ? 0 : frequency.hashCode());
         result = prime * result + ((producer == null) ? 0 : producer.hashCode());
         result = prime * result + ((repoId == null) ? 0 : repoId.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
@@ -72,6 +82,16 @@ public class PackLocation {
         if (getClass() != obj.getClass())
             return false;
         PackLocation other = (PackLocation) obj;
+        if (channel == null) {
+            if (other.channel != null)
+                return false;
+        } else if (!channel.equals(other.channel))
+            return false;
+        if (frequency == null) {
+            if (other.frequency != null)
+                return false;
+        } else if (!frequency.equals(other.frequency))
+            return false;
         if (producer == null) {
             if (other.producer != null)
                 return false;
