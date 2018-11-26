@@ -35,6 +35,14 @@ import org.junit.Before;
  */
 public class Renov8TestBase {
 
+    public static PackLocation location(String producer) {
+        return location(producer, "1");
+    }
+
+    public static PackLocation location(String producer, String version) {
+        return PackLocation.create(producer, new StrVersion(version));
+    }
+
     private Path workDir;
     private Path packSpecsDir;
     private TestPackLoader packSpecLoader;

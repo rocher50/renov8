@@ -18,6 +18,9 @@
 package org.jboss.renov8.install.config.resolved.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
 
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.pack.spec.InstallSpec;
@@ -33,10 +36,26 @@ public abstract class ResolvedInstallTestBase extends Renov8TestBase {
 
     @Test
     public void test() throws Exception {
-        final InstallSpec<TestPack> actual = tool.resolveConfig(installConfig());
+        final String[] errors = errors();
         final InstallSpec<TestPack> expected = installSpec();
-
-        assertEquals(expected.toString(), actual.toString());
+        try {
+            final InstallSpec<TestPack> actual = tool.resolveConfig(installConfig());
+            if(errors != null) {
+                fail("Expected failures: " + Arrays.asList(errors));
+            }
+            assertEquals(expected.toString(), actual.toString());
+        } catch(AssertionError e) {
+            throw e;
+        } catch(Throwable t) {
+            if (errors == null) {
+                throw t;
+            } else {
+                assertErrors(t, errors);
+            }
+            if(expected != null) {
+                fail("Expected install " + expected);
+            }
+        }
         /*
         final Map<String, ResolvedPack> actualPacks = actual.getPacks();
         final Map<String, ResolvedPack> expectedPacks = expected.getPacks();
@@ -55,7 +74,29 @@ public abstract class ResolvedInstallTestBase extends Renov8TestBase {
         */
     }
 
+    protected String[] errors() {
+        return null;
+    }
+
     protected abstract InstallConfig installConfig();
 
-    protected abstract InstallSpec<TestPack> installSpec();
+    protected InstallSpec<TestPack> installSpec() {
+        return null;
+    }
+
+    protected void assertErrors(Throwable t, String... msgs) {
+        int i = 0;
+        if(msgs != null) {
+            while (t != null && i < msgs.length) {
+                assertEquals(msgs[i++], t.getLocalizedMessage());
+                t = t.getCause();
+            }
+        }
+        if(t != null) {
+            fail("Unexpected error: " + t.getLocalizedMessage());
+        }
+        if(i < msgs.length - 1) {
+            fail("Not reported error: " + msgs[i]);
+        }
+    }
 }
