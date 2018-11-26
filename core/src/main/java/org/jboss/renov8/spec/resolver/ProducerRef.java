@@ -21,23 +21,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.renov8.pack.PackId;
-import org.jboss.renov8.spec.PackSpec;
+import org.jboss.renov8.pack.spec.PackSpec;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-class ProducerRef {
+class ProducerRef<P extends PackSpec> {
 
     static final int ORDERED           = 0b1;
     static final int VISITED           = 0b01;
 
     final String producer;
-    final PackSpec spec;
-    private List<ProducerRef> deps = new ArrayList<>(0);
+    final P spec;
+    private List<ProducerRef<P>> deps = new ArrayList<>(0);
     private int status;
 
-    protected ProducerRef(String producer, PackSpec spec) {
+    protected ProducerRef(String producer, P spec) {
         this.producer = producer;
         this.spec = spec;
     }
@@ -64,7 +64,7 @@ class ProducerRef {
         return spec.getLocation().getPackId();
     }
 
-    void addDepRef(ProducerRef dep) {
+    void addDepRef(ProducerRef<P> dep) {
         deps.add(dep);
     }
 
@@ -72,7 +72,7 @@ class ProducerRef {
         return !deps.isEmpty();
     }
 
-    List<ProducerRef> getDeps() {
+    List<ProducerRef<P>> getDeps() {
         return deps;
     }
 

@@ -21,10 +21,9 @@ import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.resolved.ResolvedInstall;
-import org.jboss.renov8.resolved.ResolvedPack;
+import org.jboss.renov8.pack.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
-import org.jboss.renov8.test.TestPackSpec;
+import org.jboss.renov8.test.TestPack;
 
 /**
  *
@@ -40,34 +39,42 @@ public class CircularDepsTest extends ResolvedInstallTestBase {
     private static final PackLocation F_1 = PackLocation.create("F", new StrVersion("1"));
     private static final PackLocation G_1 = PackLocation.create("G", new StrVersion("1"));
 
+    private TestPack A_1_SPEC;
+    private TestPack B_1_SPEC;
+    private TestPack C_1_SPEC;
+    private TestPack D_1_SPEC;
+    private TestPack E_1_SPEC;
+    private TestPack F_1_SPEC;
+    private TestPack G_1_SPEC;
+
     @Override
     protected void initPackSpecs() throws Exception {
 
-        writePackSpec(TestPackSpec.builder(A_1)
+        A_1_SPEC = writePackSpec(TestPack.builder(A_1)
                 .addDependency(B_1)
                 .build());
 
-        writePackSpec(TestPackSpec.builder(B_1)
+        B_1_SPEC = writePackSpec(TestPack.builder(B_1)
                 .addDependency(C_1)
                 .build());
 
-        writePackSpec(TestPackSpec.builder(C_1)
+        C_1_SPEC = writePackSpec(TestPack.builder(C_1)
                 .addDependency(D_1)
                 .build());
 
-        writePackSpec(TestPackSpec.builder(D_1)
+        D_1_SPEC = writePackSpec(TestPack.builder(D_1)
                 .addDependency(E_1)
                 .build());
 
-        writePackSpec(TestPackSpec.builder(E_1)
+        E_1_SPEC = writePackSpec(TestPack.builder(E_1)
                 .addDependency(F_1)
                 .build());
 
-        writePackSpec(TestPackSpec.builder(F_1)
+        F_1_SPEC = writePackSpec(TestPack.builder(F_1)
                 .addDependency(G_1)
                 .build());
 
-        writePackSpec(TestPackSpec.builder(G_1)
+        G_1_SPEC = writePackSpec(TestPack.builder(G_1)
                 .addDependency(A_1)
                 .build());
 
@@ -81,35 +88,15 @@ public class CircularDepsTest extends ResolvedInstallTestBase {
     }
 
     @Override
-    protected ResolvedInstall resolvedInstall() {
-        return ResolvedInstall.builder()
-                .addPack(ResolvedPack.builder(G_1)
-                        .addDependency(A_1.getPackId().getProducer())
-                        .build())
-
-                .addPack(ResolvedPack.builder(F_1)
-                        .addDependency(G_1.getPackId().getProducer())
-                        .build())
-
-                .addPack(ResolvedPack.builder(E_1)
-                        .addDependency(F_1.getPackId().getProducer())
-                        .build())
-
-                .addPack(ResolvedPack.builder(D_1)
-                        .addDependency(E_1.getPackId().getProducer())
-                        .build())
-
-                .addPack(ResolvedPack.builder(C_1)
-                        .addDependency(D_1.getPackId().getProducer())
-                        .build())
-
-                .addPack(ResolvedPack.builder(B_1)
-                        .addDependency(C_1.getPackId().getProducer())
-                        .build())
-
-                .addPack(ResolvedPack.builder(A_1)
-                        .addDependency(B_1.getPackId().getProducer())
-                        .build())
+    protected InstallSpec<TestPack> installSpec() {
+        return InstallSpec.<TestPack>builder()
+                .addPack(G_1_SPEC)
+                .addPack(F_1_SPEC)
+                .addPack(E_1_SPEC)
+                .addPack(D_1_SPEC)
+                .addPack(C_1_SPEC)
+                .addPack(B_1_SPEC)
+                .addPack(A_1_SPEC)
                 .build();
     }
 }

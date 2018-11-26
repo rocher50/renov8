@@ -21,10 +21,9 @@ import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.resolved.ResolvedInstall;
-import org.jboss.renov8.resolved.ResolvedPack;
+import org.jboss.renov8.pack.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
-import org.jboss.renov8.test.TestPackSpec;
+import org.jboss.renov8.test.TestPack;
 
 /**
  *
@@ -32,44 +31,48 @@ import org.jboss.renov8.test.TestPackSpec;
  */
 public class DependencyOverridesConfiguredOrderingTest extends ResolvedInstallTestBase {
 
-    private static final PackLocation prod1 = PackLocation.create("producer1", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod2 = PackLocation.create("producer2", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod3 = PackLocation.create("producer3", new StrVersion("1.0.0.GA"));
-    private static final PackLocation prod4 = PackLocation.create("producer4", new StrVersion("1.0.0.GA"));
+    private static final PackLocation A_1 = PackLocation.create("A", new StrVersion("1"));
+    private static final PackLocation B_1 = PackLocation.create("B", new StrVersion("1"));
+    private static final PackLocation C_1 = PackLocation.create("C", new StrVersion("1"));
+    private static final PackLocation D_1 = PackLocation.create("D", new StrVersion("1"));
+
+    private TestPack A_1_SPEC;
+    private TestPack B_1_SPEC;
+    private TestPack C_1_SPEC;
+    private TestPack D_1_SPEC;
 
     @Override
     protected void initPackSpecs() throws Exception {
-        writePackSpec(TestPackSpec.builder(prod1)
-                .addDependency(PackConfig.forLocation(prod2))
+        A_1_SPEC = writePackSpec(TestPack.builder(A_1)
+                .addDependency(PackConfig.forLocation(B_1))
                 .build());
-        writePackSpec(TestPackSpec.builder(prod2).build());
-        writePackSpec(TestPackSpec.builder(prod3).build());
-        writePackSpec(TestPackSpec.builder(prod4)
-                .addDependency(PackConfig.forLocation(prod3))
+
+        B_1_SPEC = writePackSpec(TestPack.builder(B_1).build());
+
+        C_1_SPEC = writePackSpec(TestPack.builder(C_1).build());
+
+        D_1_SPEC = writePackSpec(TestPack.builder(D_1)
+                .addDependency(PackConfig.forLocation(C_1))
                 .build());
     }
 
     @Override
     protected InstallConfig installConfig() {
         return InstallConfig.builder()
-                .addPack(PackConfig.forLocation(prod1))
-                .addPack(PackConfig.forLocation(prod4))
-                .addPack(PackConfig.forLocation(prod2))
-                .addPack(PackConfig.forLocation(prod3))
+                .addPack(PackConfig.forLocation(A_1))
+                .addPack(PackConfig.forLocation(D_1))
+                .addPack(PackConfig.forLocation(B_1))
+                .addPack(PackConfig.forLocation(C_1))
                 .build();
     }
 
     @Override
-    protected ResolvedInstall resolvedInstall() {
-        return ResolvedInstall.builder()
-                .addPack(ResolvedPack.builder(prod2).build())
-                .addPack(ResolvedPack.builder(prod1)
-                        .addDependency(prod2.getPackId().getProducer())
-                        .build())
-                .addPack(ResolvedPack.builder(prod3).build())
-                .addPack(ResolvedPack.builder(prod4)
-                        .addDependency(prod3.getPackId().getProducer())
-                        .build())
+    protected InstallSpec<TestPack> installSpec() {
+        return InstallSpec.<TestPack>builder()
+                .addPack(B_1_SPEC)
+                .addPack(A_1_SPEC)
+                .addPack(C_1_SPEC)
+                .addPack(D_1_SPEC)
                 .build();
     }
 }

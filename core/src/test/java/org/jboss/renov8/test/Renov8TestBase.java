@@ -23,8 +23,7 @@ import java.nio.file.Path;
 import org.jboss.renov8.Renov8Tool;
 import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.spec.PackSpec;
-import org.jboss.renov8.test.util.xml.PackSpecXmlWriter;
+import org.jboss.renov8.test.util.xml.TestPackSpecXmlWriter;
 import org.jboss.renov8.utils.IoUtils;
 import org.jboss.renov8.utils.StringUtils;
 import org.junit.After;
@@ -38,17 +37,17 @@ public class Renov8TestBase {
 
     private Path workDir;
     private Path packSpecsDir;
-    private TestPackSpecLoader packSpecLoader;
-    protected Renov8Tool tool;
+    private TestPackLoader packSpecLoader;
+    protected Renov8Tool<TestPack> tool;
 
     @Before
     public void init() throws Exception {
         workDir = IoUtils.createRandomTmpDir();
         packSpecsDir = workDir.resolve("pack-specs");
         Files.createDirectories(packSpecsDir);
-        packSpecLoader = new TestPackSpecLoader(packSpecsDir);
-        tool = Renov8Tool.newInstance()
-                .addPackSpecLoader(packSpecLoader);
+        packSpecLoader = new TestPackLoader(packSpecsDir);
+        tool = Renov8Tool.<TestPack>newInstance()
+                .setPackSpecLoader(packSpecLoader);
         initPackSpecs();
     }
 
@@ -60,14 +59,15 @@ public class Renov8TestBase {
         IoUtils.recursiveDelete(workDir);
     }
 
-    protected void writePackSpec(PackSpec packSpec) throws Exception {
+    protected TestPack writePackSpec(TestPack packSpec) throws Exception {
         final PackId id = packSpec.getLocation().getPackId();
         Path p = packSpecsDir.resolve(StringUtils.ensureValidFileName(id.getProducer()))
                 .resolve(StringUtils.ensureValidFileName(id.getVersion().toString()));
-        PackSpecXmlWriter.getInstance().write(packSpec, p);
+        TestPackSpecXmlWriter.getInstance().write(packSpec, p);
+        return packSpec;
     }
 
-    protected PackSpec loadPackSpec(PackLocation location) throws Exception {
+    protected TestPack loadPackSpec(PackLocation location) throws Exception {
         return packSpecLoader.loadSpec(location);
     }
 }

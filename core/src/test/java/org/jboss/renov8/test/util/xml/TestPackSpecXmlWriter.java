@@ -22,8 +22,8 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.spec.PackSpec;
-import org.jboss.renov8.test.util.xml.PackSpecXmlParser10.Element;
+import org.jboss.renov8.pack.spec.PackSpec;
+import org.jboss.renov8.test.util.xml.TestPackSpecXmlParser10.Element;
 import org.jboss.renov8.xml.BaseXmlWriter;
 import org.jboss.renov8.xml.ElementNode;
 
@@ -31,15 +31,15 @@ import org.jboss.renov8.xml.ElementNode;
  *
  * @author Alexey Loubyansky
  */
-public class PackSpecXmlWriter extends BaseXmlWriter<PackSpec> {
+public class TestPackSpecXmlWriter extends BaseXmlWriter<PackSpec> {
 
-    private static PackSpecXmlWriter instance;
+    private static TestPackSpecXmlWriter instance;
 
-    public static PackSpecXmlWriter getInstance() {
-        return instance == null ? instance = new PackSpecXmlWriter() : instance;
+    public static TestPackSpecXmlWriter getInstance() {
+        return instance == null ? instance = new TestPackSpecXmlWriter() : instance;
     }
 
-    private PackSpecXmlWriter() {
+    private TestPackSpecXmlWriter() {
     }
 
     @Override

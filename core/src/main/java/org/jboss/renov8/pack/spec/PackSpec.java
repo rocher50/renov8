@@ -14,16 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.renov8.pack.spec;
 
-package org.jboss.renov8.installer;
+import java.util.List;
 
-import org.jboss.renov8.Renov8Exception;
+import org.jboss.renov8.config.PackConfig;
+import org.jboss.renov8.pack.PackLocation;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public interface InstallSpecHandler {
+public interface PackSpec {
 
-    void handleSpec(InstallContext ctx) throws Renov8Exception;
+    PackLocation getLocation();
+
+    boolean hasDependencies();
+
+    List<PackConfig> getDependencies();
 }

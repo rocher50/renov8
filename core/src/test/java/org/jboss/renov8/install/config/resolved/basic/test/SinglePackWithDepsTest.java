@@ -21,10 +21,9 @@ import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.resolved.ResolvedInstall;
-import org.jboss.renov8.resolved.ResolvedPack;
+import org.jboss.renov8.pack.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
-import org.jboss.renov8.test.TestPackSpec;
+import org.jboss.renov8.test.TestPack;
 
 /**
  *
@@ -32,18 +31,22 @@ import org.jboss.renov8.test.TestPackSpec;
  */
 public class SinglePackWithDepsTest extends ResolvedInstallTestBase {
 
+    private static final PackConfig PROD_3_CONFIG = PackConfig.forLocation(PackLocation.create("producer3", new StrVersion("1.0.0.GA")));
+    private static final PackConfig PROD_2_CONFIG = PackConfig.forLocation(PackLocation.create("producer2", new StrVersion("1.0.0.GA")));
+    private static final PackConfig PROD_4_CONFIG = PackConfig.forLocation(PackLocation.create("producer4", new StrVersion("1.0.0.GA")));
+
     @Override
     protected void initPackSpecs() throws Exception {
-        writePackSpec(TestPackSpec.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA")))
-                .addDependency(PackConfig.forLocation(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))))
-                .addDependency(PackConfig.forLocation(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))))
+        writePackSpec(TestPack.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA")))
+                .addDependency(PROD_2_CONFIG)
+                .addDependency(PROD_3_CONFIG)
                 .build());
-        writePackSpec(TestPackSpec.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA")))
-                .addDependency(PackConfig.forLocation(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))))
+        writePackSpec(TestPack.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA")))
+                .addDependency(PROD_4_CONFIG)
                 .build());
-        writePackSpec(TestPackSpec.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA")))
+        writePackSpec(TestPack.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA")))
                 .build());
-        writePackSpec(TestPackSpec.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA")))
+        writePackSpec(TestPack.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA")))
                 .build());
     }
 
@@ -55,18 +58,18 @@ public class SinglePackWithDepsTest extends ResolvedInstallTestBase {
     }
 
     @Override
-    protected ResolvedInstall resolvedInstall() {
-        return ResolvedInstall.builder()
-                .addPack(ResolvedPack.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA")))
+    protected InstallSpec<TestPack> installSpec() {
+        return InstallSpec.<TestPack>builder()
+                .addPack(TestPack.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA")))
                         .build())
-                .addPack(ResolvedPack.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA")))
-                        .addDependency("producer4")
+                .addPack(TestPack.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA")))
+                        .addDependency(PROD_4_CONFIG)
                         .build())
-                .addPack(ResolvedPack.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA")))
+                .addPack(TestPack.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA")))
                         .build())
-                .addPack(ResolvedPack.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA")))
-                        .addDependency("producer2")
-                        .addDependency("producer3")
+                .addPack(TestPack.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA")))
+                        .addDependency(PROD_2_CONFIG)
+                        .addDependency(PROD_3_CONFIG)
                         .build())
                 .build();
     }

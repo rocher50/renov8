@@ -25,34 +25,33 @@ import java.nio.file.Path;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.jboss.renov8.spec.PackSpec;
-import org.jboss.renov8.test.TestPackSpec;
+import org.jboss.renov8.test.TestPack;
 import org.jboss.renov8.xml.XmlParsers;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class PackSpecXmlParser {
+public class TestPackSpecXmlParser {
 
-    private static PackSpecXmlParser instance;
+    private static TestPackSpecXmlParser instance;
 
-    public static PackSpecXmlParser getInstance() {
-        return instance == null ? instance = new PackSpecXmlParser() : instance;
+    public static TestPackSpecXmlParser getInstance() {
+        return instance == null ? instance = new TestPackSpecXmlParser() : instance;
     }
 
-    public static PackSpec parse(Path p) throws IOException, XMLStreamException {
+    public static TestPack parse(Path p) throws IOException, XMLStreamException {
         try(BufferedReader reader = Files.newBufferedReader(p)) {
             return getInstance().parse(reader);
         }
     }
 
-    private PackSpecXmlParser() {
-        new PackSpecXmlParser10().plugin(XmlParsers.getInstance());
+    private TestPackSpecXmlParser() {
+        new TestPackSpecXmlParser10().plugin(XmlParsers.getInstance());
     }
 
-    public PackSpec parse(final Reader input) throws XMLStreamException {
-        final TestPackSpec.Builder builder = TestPackSpec.builder();
+    public TestPack parse(final Reader input) throws XMLStreamException {
+        final TestPack.Builder builder = TestPack.builder();
         XmlParsers.parse(input, builder);
         return builder.build();
     }

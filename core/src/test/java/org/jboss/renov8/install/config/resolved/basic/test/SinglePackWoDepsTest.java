@@ -22,10 +22,9 @@ import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.resolved.ResolvedInstall;
-import org.jboss.renov8.resolved.ResolvedPack;
+import org.jboss.renov8.pack.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
-import org.jboss.renov8.test.TestPackSpec;
+import org.jboss.renov8.test.TestPack;
 
 /**
  *
@@ -35,7 +34,7 @@ public class SinglePackWoDepsTest extends ResolvedInstallTestBase {
 
     @Override
     protected void initPackSpecs() throws Exception {
-        writePackSpec(TestPackSpec.builder(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))).build());
+        writePackSpec(TestPack.builder(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))).build());
     }
 
     @Override
@@ -46,9 +45,9 @@ public class SinglePackWoDepsTest extends ResolvedInstallTestBase {
     }
 
     @Override
-    protected ResolvedInstall resolvedInstall() {
-        return ResolvedInstall.builder()
-                .addPack(ResolvedPack.builder(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))).build())
+    protected InstallSpec<TestPack> installSpec() {
+        return InstallSpec.<TestPack>builder()
+                .addPack(TestPack.builder(new PackLocation(new PackId("org.test:test", new StrVersion("1.0.0.GA")))).build())
                 .build();
     }
 }

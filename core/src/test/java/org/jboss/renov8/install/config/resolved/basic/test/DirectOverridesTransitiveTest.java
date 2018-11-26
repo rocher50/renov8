@@ -21,10 +21,9 @@ import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.resolved.ResolvedInstall;
-import org.jboss.renov8.resolved.ResolvedPack;
+import org.jboss.renov8.pack.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
-import org.jboss.renov8.test.TestPackSpec;
+import org.jboss.renov8.test.TestPack;
 
 /**
  *
@@ -38,26 +37,29 @@ public class DirectOverridesTransitiveTest extends ResolvedInstallTestBase {
     private static final PackLocation B_2 = PackLocation.create("B", new StrVersion("2"));
     private static final PackLocation C_1 = PackLocation.create("C", new StrVersion("1"));
 
+    private TestPack A_1_SPEC;
+    private TestPack B_2_SPEC;
+
     @Override
     protected void initPackSpecs() throws Exception {
 
-        writePackSpec(TestPackSpec.builder(A_1)
+        A_1_SPEC = writePackSpec(TestPack.builder(A_1)
                 .addDependency(B_1)
                 .build());
 
-        writePackSpec(TestPackSpec.builder(A_2)
+        writePackSpec(TestPack.builder(A_2)
                 .addDependency(PackConfig.forLocation(C_1))
                 .build());
 
-        writePackSpec(TestPackSpec.builder(B_1)
+        writePackSpec(TestPack.builder(B_1)
                 .addDependency(PackConfig.forLocation(C_1))
                 .build());
 
-        writePackSpec(TestPackSpec.builder(B_2)
+        B_2_SPEC = writePackSpec(TestPack.builder(B_2)
                 .addDependency(A_2)
                 .build());
 
-        writePackSpec(TestPackSpec.builder(C_1)
+        writePackSpec(TestPack.builder(C_1)
                 .build());
     }
 
@@ -70,15 +72,11 @@ public class DirectOverridesTransitiveTest extends ResolvedInstallTestBase {
     }
 
     @Override
-    protected ResolvedInstall resolvedInstall() {
-        return ResolvedInstall.builder()
-                .addPack(ResolvedPack.builder(B_2)
-                        .addDependency(A_2.getPackId().getProducer())
-                        .build())
+    protected InstallSpec<TestPack> installSpec() {
+        return InstallSpec.<TestPack>builder()
+                .addPack(B_2_SPEC)
 
-                .addPack(ResolvedPack.builder(A_1)
-                        .addDependency(B_1.getPackId().getProducer())
-                        .build())
+                .addPack(A_1_SPEC)
 
                 .build();
     }

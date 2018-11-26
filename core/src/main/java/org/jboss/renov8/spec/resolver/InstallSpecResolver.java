@@ -18,98 +18,54 @@
 package org.jboss.renov8.spec.resolver;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 
 import org.jboss.renov8.Renov8Exception;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.pack.spec.loader.PackSpecLoader;
-import org.jboss.renov8.resolved.ResolvedInstall;
-import org.jboss.renov8.resolved.ResolvedPack;
-import org.jboss.renov8.spec.PackSpec;
+import org.jboss.renov8.pack.spec.InstallSpec;
+import org.jboss.renov8.pack.spec.PackSpec;
+import org.jboss.renov8.pack.spec.PackSpecLoader;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class InstallSpecResolver {
+public class InstallSpecResolver<P extends PackSpec> {
 
-    private static List<PackSpecLoader> defaultSpecLoaders;
-
-    private static synchronized List<PackSpecLoader> getDefaultSpecLoaders() throws Renov8Exception {
-        return defaultSpecLoaders == null ? defaultSpecLoaders = initSpecLoaders() : defaultSpecLoaders;
+    public static <P extends PackSpec> InstallSpecResolver<P> newInstance(PackSpecLoader<P> packLoader) {
+        return new InstallSpecResolver<P>(packLoader);
     }
 
-    private static List<PackSpecLoader> initSpecLoaders() throws Renov8Exception {
-        final Iterator<PackSpecLoader> i = ServiceLoader.load(PackSpecLoader.class).iterator();
-        if(!i.hasNext()) {
-            throw new Renov8Exception("No PackSpecLoader found on the classpath");
-        }
-        final PackSpecLoader loader = i.next();
-        if(!i.hasNext()) {
-            return Collections.singletonList(loader);
-        }
-        final List<PackSpecLoader> loaders = new ArrayList<>();
-        loaders.add(loader);
-        while (i.hasNext()) {
-            loaders.add(i.next());
-        }
-        return loaders;
+    private PackSpecLoader<P> packLoader;
+    private Map<String, ProducerRef<P>> producers = new HashMap<>();
+    private final List<ProducerRef<P>> visited = new ArrayList<>();
+
+    protected InstallSpecResolver(PackSpecLoader<P> packLoader) {
+        this.packLoader = packLoader;
     }
 
-    public static InstallSpecResolver newInstance() {
-        return new InstallSpecResolver();
-    }
-
-    private List<PackSpecLoader> specLoaders = Collections.emptyList();
-    private Map<String, ProducerRef> producers = new HashMap<>();
-    private final List<ProducerRef> visited = new ArrayList<>();
-
-    protected InstallSpecResolver() {
-    }
-
-    public InstallSpecResolver addPackSpecLoader(PackSpecLoader loader) {
-        if(specLoaders.isEmpty()) {
-            specLoaders = Collections.singletonList(loader);
-            return this;
-        }
-        if(specLoaders.size() == 1) {
-            specLoaders = new ArrayList<>(specLoaders);
-        }
-        specLoaders.add(loader);
-        return this;
-    }
-
-    public ResolvedInstall resolve(InstallConfig config) throws Renov8Exception {
+    public InstallSpec<P> resolve(InstallConfig config) throws Renov8Exception {
         if(!config.hasPacks()) {
             throw new Renov8Exception("Config is empty");
         }
 
-        if(specLoaders == null) {
-            specLoaders = getDefaultSpecLoaders();
-        }
-
         resolveDeps(null, config.getPacks());
 
-        final ResolvedInstall.Builder specBuilder = ResolvedInstall.builder();
+        final InstallSpec.Builder<P> specBuilder = InstallSpec.builder();
         for(PackConfig packConfig : config.getPacks()) {
             addResolvedPack(specBuilder, producers.get(packConfig.getLocation().getPackId().getProducer()));
         }
         return specBuilder.build();
     }
 
-    private void addResolvedPack(ResolvedInstall.Builder installBuilder, ProducerRef pRef) throws Renov8Exception {
-        final ResolvedPack.Builder packBuilder = ResolvedPack.builder(pRef.spec.getLocation());
-        if(pRef.hasDeps()) {
+    private void addResolvedPack(InstallSpec.Builder<P> installBuilder, ProducerRef<P> pRef) throws Renov8Exception {
+        if(pRef.spec.hasDependencies()) {
             pRef.setFlag(ProducerRef.VISITED);
-            for(ProducerRef depRef : pRef.getDeps()) {
-                packBuilder.addDependency(depRef.getPackId().getProducer());
+            for(ProducerRef<P> depRef : pRef.getDeps()) {
                 if(!depRef.isFlagOn(ProducerRef.ORDERED) && !depRef.isFlagOn(ProducerRef.VISITED)) {
                     addResolvedPack(installBuilder, depRef);
                 }
@@ -117,17 +73,17 @@ public class InstallSpecResolver {
             pRef.clearFlag(ProducerRef.VISITED);
         }
         pRef.setFlag(ProducerRef.ORDERED);
-        installBuilder.addPack(packBuilder.build());
+        installBuilder.addPack(pRef.spec);
     }
 
-    private void resolveDeps(ProducerRef parentRef, List<PackConfig> depConfigs) throws Renov8Exception {
+    private void resolveDeps(ProducerRef<P> parentRef, List<PackConfig> depConfigs) throws Renov8Exception {
         final int visitedOffset = visited.size();
         int i = 0;
         while (i < depConfigs.size()) {
             final PackLocation pLoc = depConfigs.get(i++).getLocation();
-            ProducerRef depRef = producers.get(pLoc.getPackId().getProducer());
+            ProducerRef<P> depRef = producers.get(pLoc.getPackId().getProducer());
             if(depRef == null) {
-                depRef = new ProducerRef(pLoc.getPackId().getProducer(), loadPack(pLoc));
+                depRef = new ProducerRef<P>(pLoc.getPackId().getProducer(), loadPack(pLoc));
                 producers.put(pLoc.getPackId().getProducer(), depRef);
                 depRef.setFlag(ProducerRef.VISITED);
                 visited.add(depRef);
@@ -143,7 +99,7 @@ public class InstallSpecResolver {
         }
         i = visitedOffset;
         while (i < visited.size()) {
-            final ProducerRef depRef = visited.get(i++);
+            final ProducerRef<P> depRef = visited.get(i++);
             if (depRef.spec.hasDependencies()) {
                 resolveDeps(depRef, depRef.spec.getDependencies());
             }
@@ -157,12 +113,10 @@ public class InstallSpecResolver {
         }
     }
 
-    protected PackSpec loadPack(PackLocation location) throws Renov8Exception {
-        for(PackSpecLoader loader : specLoaders) {
-            final PackSpec packSpec = loader.loadSpec(location);
-            if(packSpec != null) {
-                return packSpec;
-            }
+    protected P loadPack(PackLocation location) throws Renov8Exception {
+        final P pack = packLoader.loadSpec(location);
+        if(pack != null) {
+            return pack;
         }
         throw new Renov8Exception("Failed to locate spec for " + location);
     }

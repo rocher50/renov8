@@ -28,8 +28,8 @@ import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.pack.PackId;
 import org.jboss.renov8.pack.PackLocation;
 import org.jboss.renov8.test.StrVersion;
-import org.jboss.renov8.test.TestPackSpec;
-import org.jboss.renov8.test.TestPackSpec.Builder;
+import org.jboss.renov8.test.TestPack;
+import org.jboss.renov8.test.TestPack.Builder;
 import org.jboss.renov8.xml.ParsingUtils;
 import org.jboss.renov8.xml.PlugableXmlParser;
 import org.jboss.renov8.xml.XmlNameProvider;
@@ -39,7 +39,7 @@ import org.jboss.staxmapper.XMLExtendedStreamReader;
  *
  * @author Alexey Loubyansky
  */
-public class PackSpecXmlParser10 implements PlugableXmlParser<TestPackSpec.Builder> {
+public class TestPackSpecXmlParser10 implements PlugableXmlParser<TestPack.Builder> {
 
     public static final String NS = "urn:jboss:renov8:pack-spec:1.0";
     public static final QName ROOT = new QName(NS, Element.PACK_SPEC.getLocalName());

@@ -15,71 +15,87 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.resolved;
+package org.jboss.renov8.test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.renov8.pack.PackId;
+import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.pack.PackLocation;
+import org.jboss.renov8.pack.spec.PackSpec;
 import org.jboss.renov8.utils.StringUtils;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class ResolvedPack {
+public class TestPack implements PackSpec {
 
     public static class Builder {
 
         protected PackLocation location;
-        protected List<String> deps = new ArrayList<>();
+        protected List<PackConfig> deps = new ArrayList<>(0);
 
-        protected Builder(PackLocation location) {
-            this.location = location;
+        protected Builder() {
         }
 
-        public Builder addDependency(String producer) {
-            deps.add(producer);
+        public Builder setLocation(PackLocation location) {
+            this.location = location;
             return this;
         }
 
-        public ResolvedPack build() {
-            return new ResolvedPack(this);
+        public Builder addDependency(PackLocation dep) {
+            return addDependency(PackConfig.forLocation(dep));
+        }
+
+        public Builder addDependency(PackConfig dep) {
+            deps.add(dep);
+            return this;
+        }
+
+        public TestPack build() {
+            return new TestPack(this);
         }
     }
 
     public static Builder builder(PackLocation location) {
-        return new Builder(location);
+        return builder().setLocation(location);
     }
 
-    public static ResolvedPack forLocation(PackLocation location) {
-        return builder(location).build();
+    public static Builder builder() {
+        return new Builder();
     }
 
     protected final PackLocation location;
-    protected final List<String> deps;
+    protected final List<PackConfig> deps;
 
-    protected ResolvedPack(Builder builder) {
+    protected TestPack(Builder builder) {
         this.location = builder.location;
-        this.deps = builder.deps.isEmpty() ? Collections.emptyList() : Arrays.asList(builder.deps.toArray(new String[builder.deps.size()]));
+        this.deps = builder.deps.isEmpty() ? Collections.emptyList() : Collections.unmodifiableList(builder.deps);
     }
 
+    /* (non-Javadoc)
+     * @see org.jboss.renov8.spec.PackSpec#getLocation()
+     */
+    @Override
     public PackLocation getLocation() {
         return location;
     }
 
-    public PackId getId() {
-        return location.getPackId();
-    }
-
+    /* (non-Javadoc)
+     * @see org.jboss.renov8.spec.PackSpec#hasDependencies()
+     */
+    @Override
     public boolean hasDependencies() {
         return !deps.isEmpty();
     }
 
-    public List<String> getDependencies() {
+    /* (non-Javadoc)
+     * @see org.jboss.renov8.spec.PackSpec#getDependencies()
+     */
+    @Override
+    public List<PackConfig> getDependencies() {
         return deps;
     }
 
@@ -100,7 +116,7 @@ public class ResolvedPack {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ResolvedPack other = (ResolvedPack) obj;
+        TestPack other = (TestPack) obj;
         if (deps == null) {
             if (other.deps != null)
                 return false;

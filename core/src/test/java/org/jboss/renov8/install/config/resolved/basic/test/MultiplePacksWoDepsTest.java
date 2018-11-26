@@ -21,10 +21,9 @@ import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.install.config.resolved.test.ResolvedInstallTestBase;
 import org.jboss.renov8.pack.PackLocation;
-import org.jboss.renov8.resolved.ResolvedInstall;
-import org.jboss.renov8.resolved.ResolvedPack;
+import org.jboss.renov8.pack.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
-import org.jboss.renov8.test.TestPackSpec;
+import org.jboss.renov8.test.TestPack;
 
 /**
  *
@@ -34,10 +33,10 @@ public class MultiplePacksWoDepsTest extends ResolvedInstallTestBase {
 
     @Override
     protected void initPackSpecs() throws Exception {
-        writePackSpec(TestPackSpec.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))).build());
-        writePackSpec(TestPackSpec.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))).build());
-        writePackSpec(TestPackSpec.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))).build());
-        writePackSpec(TestPackSpec.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))).build());
+        writePackSpec(TestPack.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))).build());
+        writePackSpec(TestPack.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))).build());
+        writePackSpec(TestPack.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))).build());
+        writePackSpec(TestPack.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))).build());
     }
 
     @Override
@@ -51,12 +50,12 @@ public class MultiplePacksWoDepsTest extends ResolvedInstallTestBase {
     }
 
     @Override
-    protected ResolvedInstall resolvedInstall() {
-        return ResolvedInstall.builder()
-                .addPack(ResolvedPack.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))).build())
-                .addPack(ResolvedPack.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))).build())
-                .addPack(ResolvedPack.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))).build())
-                .addPack(ResolvedPack.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))).build())
+    protected InstallSpec<TestPack> installSpec() {
+        return InstallSpec.<TestPack>builder()
+                .addPack(TestPack.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))).build())
+                .addPack(TestPack.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))).build())
+                .addPack(TestPack.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))).build())
+                .addPack(TestPack.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))).build())
                 .build();
     }
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.spec;
+package org.jboss.renov8.pack.spec;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -28,32 +28,32 @@ import org.jboss.renov8.utils.StringUtils;
  *
  * @author Alexey Loubyansky
  */
-public class InstallSpec {
+public class InstallSpec<P extends PackSpec> {
 
-    public static class Builder {
+    public static class Builder<P extends PackSpec> {
 
-        private Map<PackId, PackSpec> packs = new LinkedHashMap<>(0);
+        private Map<PackId, P> packs = new LinkedHashMap<>(0);
 
         protected Builder() {
         }
 
-        public Builder addPack(PackSpec pack) {
+        public Builder<P> addPack(P pack) {
             packs.put(pack.getLocation().getPackId(), pack);
             return this;
         }
 
-        public InstallSpec build() {
-            return new InstallSpec(this);
+        public InstallSpec<P> build() {
+            return new InstallSpec<P>(this);
         }
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static <P extends PackSpec> Builder<P> builder() {
+        return new Builder<P>();
     }
 
-    private final Map<PackId, PackSpec> packs;
+    private final Map<PackId, P> packs;
 
-    protected InstallSpec(Builder builder) {
+    protected InstallSpec(Builder<P> builder) {
         packs = Collections.unmodifiableMap(builder.packs);
     }
 
@@ -61,7 +61,7 @@ public class InstallSpec {
         return !packs.isEmpty();
     }
 
-    public Map<PackId, PackSpec> getPacks() {
+    public Map<PackId, P> getPacks() {
         return packs;
     }
 
@@ -81,7 +81,7 @@ public class InstallSpec {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        InstallSpec other = (InstallSpec) obj;
+        InstallSpec<?> other = (InstallSpec<?>) obj;
         if (packs == null) {
             if (other.packs != null)
                 return false;

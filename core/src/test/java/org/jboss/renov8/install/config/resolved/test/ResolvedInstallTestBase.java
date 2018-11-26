@@ -20,8 +20,9 @@ package org.jboss.renov8.install.config.resolved.test;
 import static org.junit.Assert.assertEquals;
 
 import org.jboss.renov8.config.InstallConfig;
-import org.jboss.renov8.resolved.ResolvedInstall;
+import org.jboss.renov8.pack.spec.InstallSpec;
 import org.jboss.renov8.test.Renov8TestBase;
+import org.jboss.renov8.test.TestPack;
 import org.junit.Test;
 
 /**
@@ -32,8 +33,8 @@ public abstract class ResolvedInstallTestBase extends Renov8TestBase {
 
     @Test
     public void test() throws Exception {
-        final ResolvedInstall actual = tool.resolveConfig(installConfig());
-        final ResolvedInstall expected = resolvedInstall();
+        final InstallSpec<TestPack> actual = tool.resolveConfig(installConfig());
+        final InstallSpec<TestPack> expected = installSpec();
 
         assertEquals(expected.toString(), actual.toString());
         /*
@@ -56,5 +57,5 @@ public abstract class ResolvedInstallTestBase extends Renov8TestBase {
 
     protected abstract InstallConfig installConfig();
 
-    protected abstract ResolvedInstall resolvedInstall();
+    protected abstract InstallSpec<TestPack> installSpec();
 }
