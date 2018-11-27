@@ -14,18 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.renov8.spec;
+package org.jboss.renov8;
 
 import java.util.List;
 
-import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.PackConfig;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public interface PackSpec {
+public interface Pack {
 
     PackLocation getLocation();
 

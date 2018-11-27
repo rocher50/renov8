@@ -18,7 +18,7 @@
 package org.jboss.renov8.config.resolved.basic.test;
 
 import org.jboss.renov8.PackLocation;
-import org.jboss.renov8.config.InstallConfig;
+import org.jboss.renov8.config.DistConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
 import org.jboss.renov8.test.TestPack;
@@ -49,8 +49,8 @@ public class PackVersionConflictTest extends ResolvedSpecTestBase {
     }
 
     @Override
-    protected InstallConfig installConfig() {
-        return InstallConfig.builder()
+    protected DistConfig distConfig() {
+        return DistConfig.builder()
                 .addPack(PackConfig.forLocation(A_1))
                 .addPack(PackConfig.forLocation(B_1))
                 .build();

@@ -18,10 +18,9 @@
 package org.jboss.renov8.config.resolved.transitive.test;
 
 import org.jboss.renov8.PackLocation;
-import org.jboss.renov8.config.InstallConfig;
+import org.jboss.renov8.config.DistConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
-import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.TestPack;
 
 /**
@@ -65,34 +64,47 @@ public class TransitiveDepChangesOriginTest extends ResolvedSpecTestBase {
     }
 
     @Override
-    protected InstallConfig installConfig() {
-        return InstallConfig.builder()
+    protected String[] updateProducers() {
+        return new String[] {"B", "C"};
+    }
+
+    @Override
+    protected DistConfig distConfig() {
+        return DistConfig.builder()
                 .addPack(PackConfig.forLocation(A_1))
                 .addPack(PackConfig.forLocation(C_1))
                 .build();
     }
 
     @Override
-    protected String[] resolveLatest() {
-        return new String[] {"B", "C"};
+    protected DistConfig resolvedConfig() {
+        return DistConfig.builder()
+                .addPack(PackConfig.forLocation(A_1))
+                .addPack(PackConfig.forLocation(C_2))
+                .addPack(PackConfig.forTransitive(B_2))
+                .build();
     }
 
     @Override
-    protected InstallSpec<TestPack> installSpec() {
-        return InstallSpec.<TestPack>builder()
-                .addPack(TestPack.builder(E_1)
-                        .build())
-                .addPack(TestPack.builder(B_2)
-                        .addDependency(PackConfig.forLocation(E_1))
-                        .build())
-                .addPack(TestPack.builder(A_1)
-                        .addDependency(PackConfig.forLocation(B_1))
-                        .build())
-                .addPack(TestPack.builder(D_1)
-                        .build())
-                .addPack(TestPack.builder(C_2)
-                        .addDependency(PackConfig.forLocation(D_1))
-                        .build())
-                .build();
+    protected TestPack[] resolvedPacks() {
+        return new TestPack[] {
+                TestPack.builder(E_1)
+                .build(),
+
+                TestPack.builder(B_2)
+                .addDependency(PackConfig.forLocation(E_1))
+                .build(),
+
+                TestPack.builder(A_1)
+                .addDependency(PackConfig.forLocation(B_1))
+                .build(),
+
+                TestPack.builder(D_1)
+                .build(),
+
+                TestPack.builder(C_2)
+                .addDependency(PackConfig.forLocation(D_1))
+                .build()
+        };
     }
 }

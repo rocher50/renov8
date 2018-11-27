@@ -21,9 +21,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.List;
 
-import org.jboss.renov8.config.InstallConfig;
-import org.jboss.renov8.spec.InstallSpec;
+import org.jboss.renov8.config.DistConfig;
+import org.jboss.renov8.resolver.DistResolver;
 import org.jboss.renov8.test.Renov8TestBase;
 import org.jboss.renov8.test.TestPack;
 import org.junit.Test;
@@ -37,19 +38,31 @@ public abstract class ResolvedSpecTestBase extends Renov8TestBase {
     @Test
     public void test() throws Exception {
         final String[] errors = errors();
-        final InstallSpec<TestPack> expected = installSpec();
+        final TestPack[] expected = resolvedPacks();
         try {
-            final String[] resolveLatest = resolveLatest();
-            final InstallSpec<TestPack> actual;
-            if(resolveLatest == null) {
-                actual = tool.resolveConfig(installConfig());
-            } else {
-                actual = tool.resolveLatest(installConfig(), resolveLatest);
-            }
+            final String[] resolveLatest = updateProducers();
+            final List<TestPack> actual;
+            final DistConfig originalConfig = distConfig();
+
+            final DistResolver<TestPack> resolver = resolveLatest == null ?
+                    DistResolver.newInstance(packResolver, originalConfig) :
+                        DistResolver.newInstance(packResolver, originalConfig, resolveLatest);
+
+            actual = resolver.getPacksInOrder();
+
             if(errors != null) {
                 fail("Expected failures: " + Arrays.asList(errors));
             }
-            assertEquals(expected.toString(), actual.toString());
+            if(!Arrays.asList(expected).equals(actual)) {
+                System.err.println(Arrays.asList(expected));
+                System.err.println(Arrays.asList(actual));
+                assertEquals(Arrays.asList(expected), actual);
+            }
+            DistConfig expectedConfig = resolvedConfig();
+            if(expectedConfig == null) {
+                expectedConfig = originalConfig;
+            }
+            assertEquals(expectedConfig, resolver.getConfig());
         } catch(AssertionError e) {
             throw e;
         } catch(Throwable t) {
@@ -62,25 +75,9 @@ public abstract class ResolvedSpecTestBase extends Renov8TestBase {
                 fail("Expected install " + expected);
             }
         }
-        /*
-        final Map<String, ResolvedPack> actualPacks = actual.getPacks();
-        final Map<String, ResolvedPack> expectedPacks = expected.getPacks();
-
-        if(actualPacks.size() != expectedPacks.size()) {
-            assertEquals(expectedPacks, actualPacks);
-        }
-
-        final Iterator<ResolvedPack> expectedOrder = expectedPacks.values().iterator();
-        final Iterator<ResolvedPack> actualOrder = actualPacks.values().iterator();
-        while(expectedOrder.hasNext()) {
-            if(expectedOrder.next().equals(actualOrder.next())) {
-                continue;
-            }
-        }
-        */
     }
 
-    protected String[] resolveLatest() {
+    protected String[] updateProducers() {
         return null;
     }
 
@@ -88,9 +85,13 @@ public abstract class ResolvedSpecTestBase extends Renov8TestBase {
         return null;
     }
 
-    protected abstract InstallConfig installConfig();
+    protected abstract DistConfig distConfig();
 
-    protected InstallSpec<TestPack> installSpec() {
+    protected DistConfig resolvedConfig() {
+        return null;
+    }
+
+    protected TestPack[] resolvedPacks() {
         return null;
     }
 

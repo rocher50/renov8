@@ -17,10 +17,9 @@
 
 package org.jboss.renov8.config.resolved.latest.test;
 
-import org.jboss.renov8.config.InstallConfig;
+import org.jboss.renov8.config.DistConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
-import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.TestPack;
 
 /**
@@ -37,20 +36,21 @@ public class LatestPackWoDepsTest extends ResolvedSpecTestBase {
     }
 
     @Override
-    protected InstallConfig installConfig() {
-        return InstallConfig.builder()
-                .addPack(PackConfig.forLocation(location("A", "1")))
+    protected String[] updateProducers() {
+        return new String[] {"A"};
+    }
+
+    @Override
+    protected DistConfig distConfig() {
+        return DistConfig.builder()
+                .addPack(PackConfig.forLocation(location("A", "3")))
                 .build();
     }
 
     @Override
-    protected String[] resolveLatest() {
-        return new String[] {"A"};
-    }
-    @Override
-    protected InstallSpec<TestPack> installSpec() {
-        return InstallSpec.<TestPack>builder()
-                .addPack(TestPack.builder(location("A", "3")).build())
-                .build();
+    protected TestPack[] resolvedPacks() {
+        return new TestPack[] {
+                TestPack.builder(location("A", "3")).build()
+        };
     }
 }

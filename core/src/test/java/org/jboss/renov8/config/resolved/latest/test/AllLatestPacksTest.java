@@ -18,10 +18,9 @@
 package org.jboss.renov8.config.resolved.latest.test;
 
 import org.jboss.renov8.PackLocation;
-import org.jboss.renov8.config.InstallConfig;
+import org.jboss.renov8.config.DistConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
-import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.TestPack;
 
 /**
@@ -65,28 +64,34 @@ public class AllLatestPacksTest extends ResolvedSpecTestBase {
     }
 
     @Override
-    protected InstallConfig installConfig() {
-        return InstallConfig.builder()
+    protected String[] updateProducers() {
+        return new String[0];
+    }
+
+    @Override
+    protected DistConfig distConfig() {
+        return DistConfig.builder()
                 .addPack(PackConfig.forLocation(A_1))
                 .addPack(PackConfig.forLocation(B_1))
                 .build();
     }
 
     @Override
-    protected String[] resolveLatest() {
-        return new String[0];
+    protected DistConfig resolvedConfig() {
+        return DistConfig.builder()
+                .addPack(PackConfig.forLocation(A_2))
+                .addPack(PackConfig.forLocation(B_2))
+                .build();
     }
 
     @Override
-    protected InstallSpec<TestPack> installSpec() {
-        return InstallSpec.<TestPack>builder()
+    protected TestPack[] resolvedPacks() {
+        return new TestPack[] {
+                C_1_SPEC,
 
-                .addPack(C_1_SPEC)
+                A_2_SPEC,
 
-                .addPack(A_2_SPEC)
-
-                .addPack(B_2_SPEC)
-
-                .build();
+                B_2_SPEC
+        };
     }
 }

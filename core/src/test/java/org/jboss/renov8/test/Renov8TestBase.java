@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.jboss.renov8.PackLocation;
-import org.jboss.renov8.Renov8Tool;
 import org.jboss.renov8.test.util.xml.TestPackSpecXmlWriter;
 import org.jboss.renov8.utils.IoUtils;
 import org.junit.After;
@@ -44,7 +43,6 @@ public class Renov8TestBase {
     private Path workDir;
     private Path packsDir;
     protected TestPackResolver packResolver;
-    protected Renov8Tool<TestPack> tool;
 
     @Before
     public void init() throws Exception {
@@ -52,8 +50,6 @@ public class Renov8TestBase {
         packsDir = workDir.resolve("pack-specs");
         Files.createDirectories(packsDir);
         packResolver = new TestPackResolver(packsDir);
-        tool = Renov8Tool.<TestPack>newInstance()
-                .setPackResolver(packResolver);
         createPacks();
     }
 

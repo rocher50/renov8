@@ -19,9 +19,9 @@ package org.jboss.renov8.test.util.xml;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.jboss.renov8.Pack;
 import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.test.util.xml.TestPackSpecXmlParser10.Element;
 import org.jboss.renov8.xml.BaseXmlWriter;
 import org.jboss.renov8.xml.ElementNode;
@@ -30,7 +30,7 @@ import org.jboss.renov8.xml.ElementNode;
  *
  * @author Alexey Loubyansky
  */
-public class TestPackSpecXmlWriter extends BaseXmlWriter<PackSpec> {
+public class TestPackSpecXmlWriter extends BaseXmlWriter<Pack> {
 
     private static TestPackSpecXmlWriter instance;
 
@@ -42,7 +42,7 @@ public class TestPackSpecXmlWriter extends BaseXmlWriter<PackSpec> {
     }
 
     @Override
-    protected ElementNode toElement(PackSpec spec) throws XMLStreamException {
+    protected ElementNode toElement(Pack spec) throws XMLStreamException {
         final ElementNode specEl = addElement(null, Element.PACK_SPEC);
 
         writeLocation(addElement(specEl, Element.LOCATION), spec.getLocation());

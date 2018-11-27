@@ -18,10 +18,9 @@
 package org.jboss.renov8.config.resolved.basic.test;
 
 import org.jboss.renov8.PackLocation;
-import org.jboss.renov8.config.InstallConfig;
+import org.jboss.renov8.config.DistConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
-import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
 import org.jboss.renov8.test.TestPack;
 
@@ -40,8 +39,8 @@ public class MultiplePacksWoDepsTest extends ResolvedSpecTestBase {
     }
 
     @Override
-    protected InstallConfig installConfig() {
-        return InstallConfig.builder()
+    protected DistConfig distConfig() {
+        return DistConfig.builder()
                 .addPack(PackConfig.forLocation(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))))
                 .addPack(PackConfig.forLocation(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))))
                 .addPack(PackConfig.forLocation(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))))
@@ -50,12 +49,12 @@ public class MultiplePacksWoDepsTest extends ResolvedSpecTestBase {
     }
 
     @Override
-    protected InstallSpec<TestPack> installSpec() {
-        return InstallSpec.<TestPack>builder()
-                .addPack(TestPack.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))).build())
-                .addPack(TestPack.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))).build())
-                .addPack(TestPack.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))).build())
-                .addPack(TestPack.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))).build())
-                .build();
+    protected TestPack[] resolvedPacks() {
+        return new TestPack[] {
+                TestPack.builder(PackLocation.create("producer1", new StrVersion("1.0.0.GA"))).build(),
+                TestPack.builder(PackLocation.create("producer4", new StrVersion("1.0.0.GA"))).build(),
+                TestPack.builder(PackLocation.create("producer2", new StrVersion("1.0.0.GA"))).build(),
+                TestPack.builder(PackLocation.create("producer3", new StrVersion("1.0.0.GA"))).build()
+        };
     }
 }

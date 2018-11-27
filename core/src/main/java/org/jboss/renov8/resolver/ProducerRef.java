@@ -21,25 +21,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jboss.renov8.Pack;
 import org.jboss.renov8.PackLocation;
-import org.jboss.renov8.spec.PackSpec;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-class ProducerRef<P extends PackSpec> {
+class ProducerRef<P extends Pack> {
 
-    static final int ORDERED    = 0b1;
-    static final int VISITED    = 0b01;
+    static final int ORDERED    = 0b001;
+    static final int UPDATED    = 0b010;
+    static final int VISITED    = 0b100;
 
     final PackLocation location;
     private P spec;
     private List<ProducerRef<P>> deps = Collections.emptyList();
     private int status;
 
-    protected ProducerRef(PackLocation location) {
+    protected ProducerRef(PackLocation location, int status) {
         this.location = location;
+        this.status = status;
     }
 
     void setSpec(P spec) {
@@ -65,7 +67,7 @@ class ProducerRef<P extends PackSpec> {
         if((status & flag) > 0) {
             return false;
         }
-        status ^= flag;
+        status |= flag;
         return true;
     }
 

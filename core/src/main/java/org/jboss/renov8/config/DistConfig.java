@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.spec;
+package org.jboss.renov8.config;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.jboss.renov8.utils.StringUtils;
 
@@ -27,40 +27,40 @@ import org.jboss.renov8.utils.StringUtils;
  *
  * @author Alexey Loubyansky
  */
-public class InstallSpec<P extends PackSpec> {
+public class DistConfig {
 
-    public static class Builder<P extends PackSpec> {
+    public static class Builder {
 
-        private Map<String, P> packs = new LinkedHashMap<>(0);
+        private List<PackConfig> packs = new ArrayList<>(0);
 
         protected Builder() {
         }
 
-        public Builder<P> addPack(P pack) {
-            packs.put(pack.getLocation().getProducer(), pack);
+        public Builder addPack(PackConfig pack) {
+            packs.add(pack);
             return this;
         }
 
-        public InstallSpec<P> build() {
-            return new InstallSpec<P>(this);
+        public DistConfig build() {
+            return new DistConfig(this);
         }
     }
 
-    public static <P extends PackSpec> Builder<P> builder() {
-        return new Builder<P>();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    private final Map<String, P> packs;
+    private final List<PackConfig> packs;
 
-    protected InstallSpec(Builder<P> builder) {
-        packs = Collections.unmodifiableMap(builder.packs);
+    protected DistConfig(Builder builder) {
+        packs = Collections.unmodifiableList(builder.packs);
     }
 
     public boolean hasPacks() {
         return !packs.isEmpty();
     }
 
-    public Map<String, P> getPacks() {
+    public List<PackConfig> getPacks() {
         return packs;
     }
 
@@ -80,7 +80,7 @@ public class InstallSpec<P extends PackSpec> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        InstallSpec<?> other = (InstallSpec<?>) obj;
+        DistConfig other = (DistConfig) obj;
         if (packs == null) {
             if (other.packs != null)
                 return false;
@@ -93,7 +93,7 @@ public class InstallSpec<P extends PackSpec> {
     public String toString() {
         final StringBuilder buf = new StringBuilder();
         buf.append('[');
-        StringUtils.append(buf, packs.values());
+        StringUtils.append(buf, packs);
         return buf.append(']').toString();
     }
 }

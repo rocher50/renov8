@@ -18,10 +18,9 @@
 package org.jboss.renov8.config.resolved.latest.test;
 
 import org.jboss.renov8.PackLocation;
-import org.jboss.renov8.config.InstallConfig;
+import org.jboss.renov8.config.DistConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
-import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.TestPack;
 
 /**
@@ -83,33 +82,41 @@ public class LatestPackWithDepsTest extends ResolvedSpecTestBase {
     }
 
     @Override
-    protected InstallConfig installConfig() {
-        return InstallConfig.builder()
+    protected String[] updateProducers() {
+        return new String[] {"B", "F"};
+    }
+
+    @Override
+    protected DistConfig distConfig() {
+        return DistConfig.builder()
                 .addPack(PackConfig.forLocation(A_1))
-                .addPack(PackConfig.forLocation(F_1))
+                .addPack(PackConfig.forLocation(F_2))
                 .addPack(PackConfig.forLocation(C_2))
                 .build();
     }
 
     @Override
-    protected String[] resolveLatest() {
-        return new String[] {"B", "F"};
+    protected DistConfig resolvedConfig() {
+        return DistConfig.builder()
+                .addPack(PackConfig.forLocation(A_1))
+                .addPack(PackConfig.forLocation(F_2))
+                .addPack(PackConfig.forLocation(C_2))
+                .addPack(PackConfig.forTransitive(B_2))
+                .build();
     }
 
     @Override
-    protected InstallSpec<TestPack> installSpec() {
-        return InstallSpec.<TestPack>builder()
+    protected TestPack[] resolvedPacks() {
+        return new TestPack[] {
+                E_1_SPEC,
 
-                .addPack(E_1_SPEC)
+                B_2_SPEC,
 
-                .addPack(B_2_SPEC)
+                C_2_SPEC,
 
-                .addPack(C_2_SPEC)
+                A_1_SPEC,
 
-                .addPack(A_1_SPEC)
-
-                .addPack(F_2_SPEC)
-
-                .build();
+                F_2_SPEC
+        };
     }
 }

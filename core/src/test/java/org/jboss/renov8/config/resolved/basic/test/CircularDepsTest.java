@@ -18,10 +18,9 @@
 package org.jboss.renov8.config.resolved.basic.test;
 
 import org.jboss.renov8.PackLocation;
-import org.jboss.renov8.config.InstallConfig;
+import org.jboss.renov8.config.DistConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
-import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
 import org.jboss.renov8.test.TestPack;
 
@@ -81,22 +80,22 @@ public class CircularDepsTest extends ResolvedSpecTestBase {
     }
 
     @Override
-    protected InstallConfig installConfig() {
-        return InstallConfig.builder()
+    protected DistConfig distConfig() {
+        return DistConfig.builder()
                 .addPack(PackConfig.forLocation(A_1))
                 .build();
     }
 
     @Override
-    protected InstallSpec<TestPack> installSpec() {
-        return InstallSpec.<TestPack>builder()
-                .addPack(G_1_SPEC)
-                .addPack(F_1_SPEC)
-                .addPack(E_1_SPEC)
-                .addPack(D_1_SPEC)
-                .addPack(C_1_SPEC)
-                .addPack(B_1_SPEC)
-                .addPack(A_1_SPEC)
-                .build();
+    protected TestPack[] resolvedPacks() {
+        return new TestPack[] {
+                G_1_SPEC,
+                F_1_SPEC,
+                E_1_SPEC,
+                D_1_SPEC,
+                C_1_SPEC,
+                B_1_SPEC,
+                A_1_SPEC
+        };
     }
 }

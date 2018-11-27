@@ -21,16 +21,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jboss.renov8.Pack;
 import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.spec.PackSpec;
 import org.jboss.renov8.utils.StringUtils;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class TestPack implements PackSpec {
+public class TestPack implements Pack {
 
     public static class Builder {
 

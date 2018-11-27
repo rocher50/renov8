@@ -17,16 +17,16 @@
 
 package org.jboss.renov8.resolver;
 
+import org.jboss.renov8.Pack;
 import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.PackVersion;
 import org.jboss.renov8.Renov8Exception;
-import org.jboss.renov8.spec.PackSpec;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public interface PackResolver<P extends PackSpec> {
+public interface PackResolver<P extends Pack> {
 
     P resolve(PackLocation location) throws Renov8Exception;
 
