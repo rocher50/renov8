@@ -53,7 +53,10 @@ public class InstallSpecResolver<P extends PackSpec> {
     }
 
     public InstallSpec<P> resolve(InstallConfig config) throws Renov8Exception {
-        return resolveLatest(config);
+        if(!config.hasPacks()) {
+            throw new Renov8Exception("Config is empty");
+        }
+        return doResolve(config);
     }
 
     public InstallSpec<P> resolveLatest(InstallConfig config, String... producers) throws Renov8Exception {
@@ -63,7 +66,11 @@ public class InstallSpecResolver<P extends PackSpec> {
 
         switch(producers.length) {
             case 0:
-                resolveLatest = Collections.emptySet();
+                final List<PackConfig> packs = config.getPacks();
+                resolveLatest = new HashSet<>(packs.size());
+                for(int i = 0; i < packs.size(); ++i) {
+                    resolveLatest.add(packs.get(i).getLocation().getProducer());
+                }
                 break;
             case 1:
                 resolveLatest = Collections.singleton(producers[0]);
@@ -75,6 +82,10 @@ public class InstallSpecResolver<P extends PackSpec> {
                 }
         }
 
+        return doResolve(config);
+    }
+
+    private InstallSpec<P> doResolve(InstallConfig config) throws Renov8Exception {
         resolveDeps(null, config.getPacks());
 
         final InstallSpec.Builder<P> specBuilder = InstallSpec.builder();
