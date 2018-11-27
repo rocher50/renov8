@@ -26,24 +26,35 @@ import org.jboss.renov8.PackLocation;
 public class PackConfig {
 
     public static PackConfig forLocation(PackLocation pl) {
-        return new PackConfig(pl);
+        return new PackConfig(pl, false);
     }
 
-    private final PackLocation pl;
+    public static PackConfig forTransitive(PackLocation pl) {
+        return new PackConfig(pl, true);
+    }
 
-    protected PackConfig(PackLocation pl) {
-        this.pl = pl;
+    private final PackLocation location;
+    private final boolean transitive;
+
+    protected PackConfig(PackLocation location, boolean transitive) {
+        this.location = location;
+        this.transitive = transitive;
     }
 
     public PackLocation getLocation() {
-        return pl;
+        return location;
+    }
+
+    public boolean isTransitive() {
+        return transitive;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((pl == null) ? 0 : pl.hashCode());
+        result = prime * result + ((location == null) ? 0 : location.hashCode());
+        result = prime * result + (transitive ? 1231 : 1237);
         return result;
     }
 
@@ -56,10 +67,12 @@ public class PackConfig {
         if (getClass() != obj.getClass())
             return false;
         PackConfig other = (PackConfig) obj;
-        if (pl == null) {
-            if (other.pl != null)
+        if (location == null) {
+            if (other.location != null)
                 return false;
-        } else if (!pl.equals(other.pl))
+        } else if (!location.equals(other.location))
+            return false;
+        if (transitive != other.transitive)
             return false;
         return true;
     }
@@ -67,7 +80,10 @@ public class PackConfig {
     @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder();
-        buf.append('[').append(pl);
+        buf.append('[').append(location);
+        if(transitive) {
+            buf.append(" transitive");
+        }
         return buf.append(']').toString();
     }
 }

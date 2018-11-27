@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.spec.PackSpec;
 
 /**
@@ -32,23 +33,28 @@ class ProducerRef<P extends PackSpec> {
     static final int ORDERED    = 0b1;
     static final int VISITED    = 0b01;
 
-    final String producer;
-    final P spec;
-    final List<ProducerRef<P>> deps;
+    final PackLocation location;
+    private P spec;
+    private List<ProducerRef<P>> deps = Collections.emptyList();
     private int status;
 
-    protected ProducerRef(String producer, P spec) {
-        this.producer = producer;
+    protected ProducerRef(PackLocation location) {
+        this.location = location;
+    }
+
+    void setSpec(P spec) {
         this.spec = spec;
         final int depsTotal = spec.getDependencies().size();
-        if(depsTotal == 0) {
-            deps = Collections.emptyList();
-        } else {
+        if(depsTotal > 0) {
             deps = new ArrayList<ProducerRef<P>>(depsTotal);
             for(int i = 0; i < depsTotal; ++i) {
                 deps.add(null);
             }
         }
+    }
+
+    P getSpec() {
+        return spec;
     }
 
     boolean isFlagOn(int flag) {
@@ -69,14 +75,34 @@ class ProducerRef<P extends PackSpec> {
         }
     }
 
+    boolean isDependencySet(int i) {
+        return deps.get(i) != null;
+    }
+
+    void setDependency(int i, ProducerRef<P> dep) {
+        deps.set(i, dep);
+    }
+
+    List<ProducerRef<P>> getDependencies() {
+        return deps;
+    }
+
+    boolean hasDependencies() {
+        return !deps.isEmpty();
+    }
+
+    boolean isResolved() {
+        return spec != null;
+    }
+
     @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder();
         buf.append('[');
-        buf.append(producer);
+        buf.append(location);
         if(spec != null) {
             buf.append(" spec=").append(spec);
         }
-        return producer;
+        return buf.toString();
     }
 }

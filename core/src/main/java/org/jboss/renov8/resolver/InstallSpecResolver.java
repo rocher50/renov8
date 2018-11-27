@@ -90,15 +90,18 @@ public class InstallSpecResolver<P extends PackSpec> {
 
         final InstallSpec.Builder<P> specBuilder = InstallSpec.builder();
         for(PackConfig packConfig : config.getPacks()) {
-            addResolvedPack(specBuilder, this.producers.get(packConfig.getLocation().getProducer()));
+            final ProducerRef<P> pRef = this.producers.get(packConfig.getLocation().getProducer());
+            if(pRef.isResolved()) {
+                addResolvedPack(specBuilder, pRef);
+            }
         }
         return specBuilder.build();
     }
 
     private void addResolvedPack(InstallSpec.Builder<P> installBuilder, ProducerRef<P> pRef) throws Renov8Exception {
-        if(pRef.spec.hasDependencies()) {
+        if(pRef.hasDependencies()) {
             pRef.setFlag(ProducerRef.VISITED);
-            for(ProducerRef<P> depRef : pRef.deps) {
+            for(ProducerRef<P> depRef : pRef.getDependencies()) {
                 if(!depRef.isFlagOn(ProducerRef.ORDERED) && !depRef.isFlagOn(ProducerRef.VISITED)) {
                     addResolvedPack(installBuilder, depRef);
                 }
@@ -106,14 +109,15 @@ public class InstallSpecResolver<P extends PackSpec> {
             pRef.clearFlag(ProducerRef.VISITED);
         }
         pRef.setFlag(ProducerRef.ORDERED);
-        installBuilder.addPack(pRef.spec);
+        installBuilder.addPack(pRef.getSpec());
     }
 
-    private void resolveDeps(ProducerRef<P> parentRef, List<PackConfig> depConfigs) throws Renov8Exception {
+    private void resolveDeps(ProducerRef<P> parent, List<PackConfig> depConfigs) throws Renov8Exception {
         final int visitedOffset = visited.size();
         int i = 0;
         while (i < depConfigs.size()) {
-            PackLocation pLoc = depConfigs.get(i).getLocation();
+            final PackConfig pConfig = depConfigs.get(i);
+            PackLocation pLoc = pConfig.getLocation();
             ProducerRef<P> depRef = producers.get(pLoc.getProducer());
             if(depRef == null) {
                 if(resolveLatest.contains(pLoc.getProducer())) {
@@ -122,15 +126,26 @@ public class InstallSpecResolver<P extends PackSpec> {
                         pLoc = new PackLocation(pLoc.getRepoId(), pLoc.getProducer(), pLoc.getChannel(), pLoc.getFrequency(), latestVersion);
                     }
                 }
-                depRef = new ProducerRef<P>(pLoc.getProducer(), packResolver.resolve(pLoc));
+
+                depRef = new ProducerRef<P>(pLoc);
+                if(parent != null || !pConfig.isTransitive()) {
+                    depRef.setSpec(packResolver.resolve(pLoc));
+                    visited.add(depRef);
+                }
                 producers.put(pLoc.getProducer(), depRef);
                 depRef.setFlag(ProducerRef.VISITED);
-                visited.add(depRef);
-            } else if(depRef.isFlagOn(ProducerRef.VISITED) ||
-                    depRef.spec.getLocation().getVersion().equals(pLoc.getVersion())) {
-                parentRef.deps.set(i, depRef);
+            } else if(depRef.isFlagOn(ProducerRef.VISITED)) {
+                if(!depRef.isResolved()) {
+                    // relevant root transitive dependency
+                    depRef.setSpec(packResolver.resolve(depRef.location));
+                    visited.add(depRef);
+                } else {
+                    parent.setDependency(i, depRef);
+                }
+            } else if(depRef.location.getVersion().equals(pLoc.getVersion())) {
+                parent.setDependency(i, depRef);
             } else {
-                throw new Renov8Exception(depRef.producer + " version conflict: " + depRef.spec.getLocation().getVersion() + " vs " + pLoc.getVersion());
+                throw new Renov8Exception(depRef.location.getProducer() + " version conflict: " + depRef.location.getVersion() + " vs " + pLoc.getVersion());
             }
             ++i;
         }
@@ -138,20 +153,21 @@ public class InstallSpecResolver<P extends PackSpec> {
             return;
         }
         i = visitedOffset;
-        int depIndex = -1;
+        int depIndex = -i;
         while (i < visited.size()) {
             final ProducerRef<P> depRef = visited.get(i);
-            if (depRef.spec.hasDependencies()) {
-                resolveDeps(depRef, depRef.spec.getDependencies());
+            final List<PackConfig> deps = depRef.getSpec().getDependencies();
+            if (!deps.isEmpty()) {
+                resolveDeps(depRef, deps);
             }
-            if (parentRef != null) {
+            if (parent != null) {
                 if(depIndex < 0) {
-                    depIndex = i - visitedOffset;
+                    depIndex += i;
                 }
-                while(parentRef.deps.get(depIndex) != null) {
+                while(parent.isDependencySet(depIndex)) {
                     ++depIndex;
                 }
-                parentRef.deps.set(depIndex++, depRef);
+                parent.setDependency(depIndex++, depRef);
             }
             ++i;
         }
