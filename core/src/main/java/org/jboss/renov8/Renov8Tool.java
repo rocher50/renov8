@@ -43,4 +43,8 @@ public class Renov8Tool<P extends PackSpec> {
     public InstallSpec<P> resolveConfig(InstallConfig config) throws Renov8Exception {
         return InstallSpecResolver.newInstance(packResolver).resolve(config);
     }
+
+    public InstallSpec<P> resolveLatest(InstallConfig config, String... producers) throws Renov8Exception {
+        return InstallSpecResolver.newInstance(packResolver).resolveLatest(config, producers);
+    }
 }

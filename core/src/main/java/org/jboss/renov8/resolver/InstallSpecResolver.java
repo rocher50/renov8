@@ -18,11 +18,15 @@
 package org.jboss.renov8.resolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jboss.renov8.PackLocation;
+import org.jboss.renov8.PackVersion;
 import org.jboss.renov8.Renov8Exception;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
@@ -41,6 +45,7 @@ public class InstallSpecResolver<P extends PackSpec> {
 
     private PackResolver<P> packResolver;
     private Map<String, ProducerRef<P>> producers = new HashMap<>();
+    private Set<String> resolveLatest = Collections.emptySet();
     private final List<ProducerRef<P>> visited = new ArrayList<>();
 
     protected InstallSpecResolver(PackResolver<P> packResolver) {
@@ -48,15 +53,33 @@ public class InstallSpecResolver<P extends PackSpec> {
     }
 
     public InstallSpec<P> resolve(InstallConfig config) throws Renov8Exception {
+        return resolveLatest(config);
+    }
+
+    public InstallSpec<P> resolveLatest(InstallConfig config, String... producers) throws Renov8Exception {
         if(!config.hasPacks()) {
             throw new Renov8Exception("Config is empty");
+        }
+
+        switch(producers.length) {
+            case 0:
+                resolveLatest = Collections.emptySet();
+                break;
+            case 1:
+                resolveLatest = Collections.singleton(producers[0]);
+                break;
+            default:
+                resolveLatest = new HashSet<>(producers.length);
+                for(String producer : producers) {
+                    resolveLatest.add(producer);
+                }
         }
 
         resolveDeps(null, config.getPacks());
 
         final InstallSpec.Builder<P> specBuilder = InstallSpec.builder();
         for(PackConfig packConfig : config.getPacks()) {
-            addResolvedPack(specBuilder, producers.get(packConfig.getLocation().getProducer()));
+            addResolvedPack(specBuilder, this.producers.get(packConfig.getLocation().getProducer()));
         }
         return specBuilder.build();
     }
@@ -64,7 +87,7 @@ public class InstallSpecResolver<P extends PackSpec> {
     private void addResolvedPack(InstallSpec.Builder<P> installBuilder, ProducerRef<P> pRef) throws Renov8Exception {
         if(pRef.spec.hasDependencies()) {
             pRef.setFlag(ProducerRef.VISITED);
-            for(ProducerRef<P> depRef : pRef.getDeps()) {
+            for(ProducerRef<P> depRef : pRef.deps) {
                 if(!depRef.isFlagOn(ProducerRef.ORDERED) && !depRef.isFlagOn(ProducerRef.VISITED)) {
                     addResolvedPack(installBuilder, depRef);
                 }
@@ -79,32 +102,47 @@ public class InstallSpecResolver<P extends PackSpec> {
         final int visitedOffset = visited.size();
         int i = 0;
         while (i < depConfigs.size()) {
-            final PackLocation pLoc = depConfigs.get(i++).getLocation();
+            PackLocation pLoc = depConfigs.get(i).getLocation();
             ProducerRef<P> depRef = producers.get(pLoc.getProducer());
             if(depRef == null) {
+                if(resolveLatest.contains(pLoc.getProducer())) {
+                    final PackVersion latestVersion = packResolver.getLatestVersion(pLoc);
+                    if(!latestVersion.equals(pLoc.getVersion())) {
+                        pLoc = new PackLocation(pLoc.getRepoId(), pLoc.getProducer(), pLoc.getChannel(), pLoc.getFrequency(), latestVersion);
+                    }
+                }
                 depRef = new ProducerRef<P>(pLoc.getProducer(), packResolver.resolve(pLoc));
                 producers.put(pLoc.getProducer(), depRef);
                 depRef.setFlag(ProducerRef.VISITED);
                 visited.add(depRef);
             } else if(depRef.isFlagOn(ProducerRef.VISITED) ||
                     depRef.spec.getLocation().getVersion().equals(pLoc.getVersion())) {
-                parentRef.addDepRef(depRef);
+                parentRef.deps.set(i, depRef);
             } else {
                 throw new Renov8Exception(depRef.producer + " version conflict: " + depRef.spec.getLocation().getVersion() + " vs " + pLoc.getVersion());
             }
+            ++i;
         }
         if(visited.size() == visitedOffset) {
             return;
         }
         i = visitedOffset;
+        int depIndex = -1;
         while (i < visited.size()) {
-            final ProducerRef<P> depRef = visited.get(i++);
+            final ProducerRef<P> depRef = visited.get(i);
             if (depRef.spec.hasDependencies()) {
                 resolveDeps(depRef, depRef.spec.getDependencies());
             }
             if (parentRef != null) {
-                parentRef.addDepRef(depRef);
+                if(depIndex < 0) {
+                    depIndex = i - visitedOffset;
+                }
+                while(parentRef.deps.get(depIndex) != null) {
+                    ++depIndex;
+                }
+                parentRef.deps.set(depIndex++, depRef);
             }
+            ++i;
         }
         i = visited.size();
         while (i > visitedOffset) {

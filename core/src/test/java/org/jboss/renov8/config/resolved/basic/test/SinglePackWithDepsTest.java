@@ -20,7 +20,7 @@ package org.jboss.renov8.config.resolved.basic.test;
 import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.config.resolved.test.ResolvedInstallTestBase;
+import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
 import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.StrVersion;
 import org.jboss.renov8.test.TestPack;
@@ -29,7 +29,7 @@ import org.jboss.renov8.test.TestPack;
  *
  * @author Alexey Loubyansky
  */
-public class SinglePackWithDepsTest extends ResolvedInstallTestBase {
+public class SinglePackWithDepsTest extends ResolvedSpecTestBase {
 
     private static final PackConfig PROD_3_CONFIG = PackConfig.forLocation(PackLocation.create("producer3", new StrVersion("1.0.0.GA")));
     private static final PackConfig PROD_2_CONFIG = PackConfig.forLocation(PackLocation.create("producer2", new StrVersion("1.0.0.GA")));

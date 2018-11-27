@@ -15,48 +15,42 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.config.resolved.basic.test;
+package org.jboss.renov8.config.resolved.latest.test;
 
-import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
+import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.TestPack;
 
 /**
  *
  * @author Alexey Loubyansky
  */
-public class PackVersionConflictTest extends ResolvedSpecTestBase {
-
-    private static final PackLocation A_1 = location("A");
-    private static final PackLocation B_1 = location("B");
-    private static final PackLocation C_1 = location("C", "1");
-    private static final PackLocation C_2 = location("C", "2");
+public class LatestPackWoDepsTest extends ResolvedSpecTestBase {
 
     @Override
     protected void createPacks() throws Exception {
-        createPack(TestPack.builder(A_1)
-                .addDependency(PackConfig.forLocation(C_1))
-                .build());
-
-        createPack(TestPack.builder(B_1)
-                .addDependency(C_2)
-                .build());
-
-        createPack(TestPack.builder(C_1).build());
-        createPack(TestPack.builder(C_2).build());
+        createPack(TestPack.builder(location("A", "1")).build());
+        createPack(TestPack.builder(location("A", "2")).build());
+        createPack(TestPack.builder(location("A", "3")).build());
     }
 
     @Override
     protected InstallConfig installConfig() {
         return InstallConfig.builder()
-                .addPack(PackConfig.forLocation(A_1))
-                .addPack(PackConfig.forLocation(B_1))
+                .addPack(PackConfig.forLocation(location("A", "1")))
                 .build();
     }
 
-    protected String[] errors() {
-        return new String[] {"C version conflict: 1 vs 2"};
+    @Override
+    protected String[] resolveLatest() {
+        return new String[] {"A"};
+    }
+    @Override
+    protected InstallSpec<TestPack> installSpec() {
+        return InstallSpec.<TestPack>builder()
+                .addPack(TestPack.builder(location("A", "3")).build())
+                .build();
     }
 }

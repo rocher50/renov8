@@ -18,6 +18,7 @@
 package org.jboss.renov8.resolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jboss.renov8.spec.PackSpec;
@@ -28,17 +29,26 @@ import org.jboss.renov8.spec.PackSpec;
  */
 class ProducerRef<P extends PackSpec> {
 
-    static final int ORDERED           = 0b1;
-    static final int VISITED           = 0b01;
+    static final int ORDERED    = 0b1;
+    static final int VISITED    = 0b01;
 
     final String producer;
     final P spec;
-    private List<ProducerRef<P>> deps = new ArrayList<>(0);
+    final List<ProducerRef<P>> deps;
     private int status;
 
     protected ProducerRef(String producer, P spec) {
         this.producer = producer;
         this.spec = spec;
+        final int depsTotal = spec.getDependencies().size();
+        if(depsTotal == 0) {
+            deps = Collections.emptyList();
+        } else {
+            deps = new ArrayList<ProducerRef<P>>(depsTotal);
+            for(int i = 0; i < depsTotal; ++i) {
+                deps.add(null);
+            }
+        }
     }
 
     boolean isFlagOn(int flag) {
@@ -57,18 +67,6 @@ class ProducerRef<P extends PackSpec> {
         if((status & flag) > 0) {
             status ^= flag;
         }
-    }
-
-    void addDepRef(ProducerRef<P> dep) {
-        deps.add(dep);
-    }
-
-    boolean hasDeps() {
-        return !deps.isEmpty();
-    }
-
-    List<ProducerRef<P>> getDeps() {
-        return deps;
     }
 
     @Override

@@ -32,14 +32,20 @@ import org.junit.Test;
  *
  * @author Alexey Loubyansky
  */
-public abstract class ResolvedInstallTestBase extends Renov8TestBase {
+public abstract class ResolvedSpecTestBase extends Renov8TestBase {
 
     @Test
     public void test() throws Exception {
         final String[] errors = errors();
         final InstallSpec<TestPack> expected = installSpec();
         try {
-            final InstallSpec<TestPack> actual = tool.resolveConfig(installConfig());
+            final String[] resolveLatest = resolveLatest();
+            final InstallSpec<TestPack> actual;
+            if(resolveLatest == null) {
+                actual = tool.resolveConfig(installConfig());
+            } else {
+                actual = tool.resolveLatest(installConfig(), resolveLatest);
+            }
             if(errors != null) {
                 fail("Expected failures: " + Arrays.asList(errors));
             }
@@ -72,6 +78,10 @@ public abstract class ResolvedInstallTestBase extends Renov8TestBase {
             }
         }
         */
+    }
+
+    protected String[] resolveLatest() {
+        return null;
     }
 
     protected String[] errors() {

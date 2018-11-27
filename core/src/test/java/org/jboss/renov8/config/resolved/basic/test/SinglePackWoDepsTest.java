@@ -19,7 +19,7 @@ package org.jboss.renov8.config.resolved.basic.test;
 
 import org.jboss.renov8.config.InstallConfig;
 import org.jboss.renov8.config.PackConfig;
-import org.jboss.renov8.config.resolved.test.ResolvedInstallTestBase;
+import org.jboss.renov8.config.resolved.test.ResolvedSpecTestBase;
 import org.jboss.renov8.spec.InstallSpec;
 import org.jboss.renov8.test.TestPack;
 
@@ -27,7 +27,7 @@ import org.jboss.renov8.test.TestPack;
  *
  * @author Alexey Loubyansky
  */
-public class SinglePackWoDepsTest extends ResolvedInstallTestBase {
+public class SinglePackWoDepsTest extends ResolvedSpecTestBase {
 
     @Override
     protected void createPacks() throws Exception {
