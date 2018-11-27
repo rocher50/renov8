@@ -28,21 +28,26 @@ import org.jboss.renov8.test.TestPack;
  *
  * @author Alexey Loubyansky
  */
-public class CustomTransitiveDepVersionChangingOriginTest extends ResolvedSpecTestBase {
+public class ResolveLatestUpgradesCustomTransitiveDepVersionTest extends ResolvedSpecTestBase {
 
     private static final PackLocation A_1 = location("A");
+    private static final PackLocation A_2 = location("A", "2");
     private static final PackLocation B_1 = location("B");
     private static final PackLocation B_2 = location("B", "2");
+    private static final PackLocation B_3 = location("B", "3");
     private static final PackLocation C_1 = location("C");
-    private static final PackLocation C_2 = location("C", "2");
     private static final PackLocation D_1 = location("D");
-    private static final PackLocation D_2 = location("D", "2");
     private static final PackLocation E_1 = location("E");
 
     @Override
     protected void createPacks() throws Exception {
         createPack(TestPack.builder(A_1)
                 .addDependency(PackConfig.forLocation(B_1))
+                .addDependency(PackConfig.forLocation(C_1))
+                .build());
+
+        createPack(TestPack.builder(A_2)
+                .addDependency(PackConfig.forLocation(B_2))
                 .build());
 
         createPack(TestPack.builder(B_1)
@@ -51,16 +56,16 @@ public class CustomTransitiveDepVersionChangingOriginTest extends ResolvedSpecTe
         createPack(TestPack.builder(B_2)
                 .addDependency(PackConfig.forLocation(E_1))
                 .build());
-
-        createPack(TestPack.builder(C_1)
+        createPack(TestPack.builder(B_3)
+                .addDependency(PackConfig.forLocation(E_1))
                 .build());
 
-        createPack(TestPack.builder(C_2)
-                .addDependency(D_1)
-                .build());
+        //createPack(TestPack.builder(C_1)
+        //        .build());
 
-        createPack(TestPack.builder(D_1).build());
-        createPack(TestPack.builder(D_2).build());
+        // To make sure it's not even loaded
+        //createPack(TestPack.builder(D_1)
+        //        .build());
 
         createPack(TestPack.builder(E_1)
                 .build());
@@ -69,15 +74,14 @@ public class CustomTransitiveDepVersionChangingOriginTest extends ResolvedSpecTe
     @Override
     protected InstallConfig installConfig() {
         return InstallConfig.builder()
-                .addPack(PackConfig.forTransitive(D_2))
+                .addPack(PackConfig.forTransitive(B_2))
                 .addPack(PackConfig.forLocation(A_1))
-                .addPack(PackConfig.forLocation(C_1))
                 .build();
     }
 
     @Override
     protected String[] resolveLatest() {
-        return new String[] {"B", "C"};
+        return new String[0];
     }
 
     @Override
@@ -85,16 +89,11 @@ public class CustomTransitiveDepVersionChangingOriginTest extends ResolvedSpecTe
         return InstallSpec.<TestPack>builder()
                 .addPack(TestPack.builder(E_1)
                         .build())
-                .addPack(TestPack.builder(B_2)
+                .addPack(TestPack.builder(B_3)
                         .addDependency(PackConfig.forLocation(E_1))
                         .build())
-                .addPack(TestPack.builder(A_1)
-                        .addDependency(PackConfig.forLocation(B_1))
-                        .build())
-                .addPack(TestPack.builder(D_2)
-                        .build())
-                .addPack(TestPack.builder(C_2)
-                        .addDependency(PackConfig.forLocation(D_1))
+                .addPack(TestPack.builder(A_2)
+                        .addDependency(PackConfig.forLocation(B_2))
                         .build())
                 .build();
     }

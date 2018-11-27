@@ -91,7 +91,7 @@ public class InstallSpecResolver<P extends PackSpec> {
         final InstallSpec.Builder<P> specBuilder = InstallSpec.builder();
         for(PackConfig packConfig : config.getPacks()) {
             final ProducerRef<P> pRef = this.producers.get(packConfig.getLocation().getProducer());
-            if(pRef.isResolved()) {
+            if(!packConfig.isTransitive()) {
                 addResolvedPack(specBuilder, pRef);
             }
         }
@@ -135,12 +135,12 @@ public class InstallSpecResolver<P extends PackSpec> {
                 producers.put(pLoc.getProducer(), depRef);
                 depRef.setFlag(ProducerRef.VISITED);
             } else if(depRef.isFlagOn(ProducerRef.VISITED)) {
-                if(!depRef.isResolved()) {
+                if(depRef.isLoaded()) {
+                    parent.setDependency(i, depRef);
+                } else {
                     // relevant root transitive dependency
                     depRef.setSpec(packResolver.resolve(depRef.location));
                     visited.add(depRef);
-                } else {
-                    parent.setDependency(i, depRef);
                 }
             } else if(depRef.location.getVersion().equals(pLoc.getVersion())) {
                 parent.setDependency(i, depRef);

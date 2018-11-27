@@ -60,8 +60,9 @@ public class UpgradeCustomTransitiveDepChangingOriginToLatestVersionTest extends
                 .addDependency(D_1)
                 .build());
 
-        createPack(TestPack.builder(D_1).build());
-        createPack(TestPack.builder(D_2).build());
+        // To make sure they are not even loaded
+        //createPack(TestPack.builder(D_1).build());
+        //createPack(TestPack.builder(D_2).build());
         createPack(TestPack.builder(D_3).build());
 
         createPack(TestPack.builder(E_1)
@@ -85,8 +86,6 @@ public class UpgradeCustomTransitiveDepChangingOriginToLatestVersionTest extends
     @Override
     protected InstallSpec<TestPack> installSpec() {
         return InstallSpec.<TestPack>builder()
-                .addPack(TestPack.builder(D_3)
-                        .build())
                 .addPack(TestPack.builder(E_1)
                         .build())
                 .addPack(TestPack.builder(B_2)
@@ -94,6 +93,8 @@ public class UpgradeCustomTransitiveDepChangingOriginToLatestVersionTest extends
                         .build())
                 .addPack(TestPack.builder(A_1)
                         .addDependency(PackConfig.forLocation(B_1))
+                        .build())
+                .addPack(TestPack.builder(D_3)
                         .build())
                 .addPack(TestPack.builder(C_2)
                         .addDependency(PackConfig.forLocation(D_1))

@@ -91,7 +91,7 @@ class ProducerRef<P extends PackSpec> {
         return !deps.isEmpty();
     }
 
-    boolean isResolved() {
+    boolean isLoaded() {
         return spec != null;
     }
 
