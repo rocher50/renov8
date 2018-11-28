@@ -33,17 +33,51 @@ import org.jboss.renov8.config.DistConfig;
 import org.jboss.renov8.config.PackConfig;
 
 /**
+ * Resolves all the distribution configuration and makes sure
+ * there are no version conflicts among its dependencies.
+ *
+ * <p>It may also perform an update of all or specific pack producers
+ * from the configuration (direct and/or transitive).
+ *
+ * <p>The versions of the packs are determined by navigating the pack
+ * dependencies in a hierarchical way, i.e. the pack version which appears
+ * to be closer to the top of the configuration overrides the versions that
+ * appear to be lower on the same branch.
+ *
+ * <p>However, if different dependency branches reference different versions
+ * of the same pack producer, the resolver gives up with an error. The version
+ * conflict has to be resolved in the original configuration (most probably
+ * wit a transitive pack config) by the user.
+ *
  *
  * @author Alexey Loubyansky
  */
 public class DistResolver<P extends Pack> {
 
-    public static <P extends Pack> DistResolver<P> newInstance(PackResolver<P> packLoader, DistConfig config) throws Renov8Exception {
-        return new DistResolver<P>(packLoader, config, null);
+    /**
+     * Resolves the distribution configuration without checking for updates.
+     *
+     * @param packResolver  repository and application-specific pack resolver
+     * @param config  distribution configuration
+     * @return  an instance of the resolver
+     * @throws Renov8Exception  in case of a failure
+     */
+    public static <P extends Pack> DistResolver<P> newInstance(PackResolver<P> packResolver, DistConfig config) throws Renov8Exception {
+        return new DistResolver<P>(packResolver, config, null);
     }
 
-    public static <P extends Pack> DistResolver<P> newInstance(PackResolver<P> packLoader, DistConfig config, String... updateProducers) throws Renov8Exception {
-        return new DistResolver<P>(packLoader, config, updateProducers);
+    /**
+     * Resolves the distribution configuration updating packs to the latest available versions.
+     *
+     * @param packResolver  repository and application-specific pack resolver
+     * @param config  distribution configuration
+     * @param updateProducers  list of producers that should be checked for updates.
+     * In case the list is empty, all the producers (of direct distribution dependencies) will be checked for updates.
+     * @return  an instance of the resolver
+     * @throws Renov8Exception  in case of a failure
+     */
+    public static <P extends Pack> DistResolver<P> newInstance(PackResolver<P> packResolver, DistConfig config, String... updateProducers) throws Renov8Exception {
+        return new DistResolver<P>(packResolver, config, updateProducers);
     }
 
     private final DistConfig originalConfig;
@@ -86,19 +120,21 @@ public class DistResolver<P extends Pack> {
         }
     }
 
+    /**
+     * Whether the distribution configuration was updated during the resolution
+     * @return  true in case the configuration was updated, otherwise - false
+     */
     public boolean isConfigUpdated() {
         return updatedProducersTotal > 0;
     }
 
-    public List<P> getPacksInOrder() throws Renov8Exception {
-        if(ordered != null) {
-            return ordered;
-        }
-        ordered = new ArrayList<P>(producers.size());
-        orderPacks(ordered, originalConfig.getPacks());
-        return ordered;
-    }
-
+    /**
+     * The actual configuration that was used by the resolver.
+     * That will be the original configuration in case the configuration wasn't updated
+     * or the updated configuration in case there were version updates.
+     *
+     * @return  actual configuration used by the resolver
+     */
     public DistConfig getConfig() {
         if(updatedProducersTotal == 0) {
             return originalConfig;
@@ -157,6 +193,39 @@ public class DistResolver<P extends Pack> {
 
         updatedConfig = configBuilder.build();
         return updatedConfig;
+    }
+
+    /**
+     * Iterates through the packs that form the distribution (not in any specific order)
+     * and invokes the handler for each one of them.
+     *
+     * @param handler  pack handler
+     * @throws Renov8Exception  in case the handler fails to process a pack
+     */
+    public void handlePacks(PackHandler<P> handler) throws Renov8Exception {
+        for(ProducerRef<P> pRef : producers.values()) {
+            if(!pRef.isLoaded()) {
+                continue;
+            }
+            handler.handle(pRef.getSpec());
+        }
+    }
+
+    /**
+     * List of distribution packs ordered respecting their dependencies and
+     * the order in which they are listed in the distribution configuration.
+     *
+     * @return  list of distribution packs ordered respecting their dependencies and
+     * the order in which they are listed in the distribution configuration
+     * @throws Renov8Exception  in case the list couldn't be resolved
+     */
+    public List<P> getPacksInOrder() throws Renov8Exception {
+        if(ordered != null) {
+            return ordered;
+        }
+        ordered = new ArrayList<P>(producers.size());
+        orderPacks(ordered, originalConfig.getPacks());
+        return ordered;
     }
 
     private void orderPacks(List<P> list, List<PackConfig> packs) throws Renov8Exception {

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.jboss.renov8.xml;
+package org.jboss.renov8.test.util.xml;
 
 import java.io.Reader;
 import javax.xml.namespace.QName;

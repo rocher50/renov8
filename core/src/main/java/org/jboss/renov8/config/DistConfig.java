@@ -24,6 +24,7 @@ import java.util.List;
 import org.jboss.renov8.utils.StringUtils;
 
 /**
+ * Represents a configuration of the distribution, application or component.
  *
  * @author Alexey Loubyansky
  */

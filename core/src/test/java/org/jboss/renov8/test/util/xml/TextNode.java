@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.renov8.xml;
+package org.jboss.renov8.test.util.xml;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -23,11 +23,16 @@ import javax.xml.stream.XMLStreamWriter;
  *
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  */
-public abstract class Node {
+public class TextNode extends Node {
 
-    public abstract void marshall(XMLStreamWriter writer) throws XMLStreamException;
+    private final String text;
 
-    public boolean hasContent() {
-        return true;
+    public TextNode(final String text){
+        this.text = text;
+    }
+
+    @Override
+    public void marshall(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeCharacters(text);
     }
 }

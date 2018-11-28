@@ -18,6 +18,21 @@
 package org.jboss.renov8;
 
 /**
+ * Pack location is used to resolve the pack in the target repository
+ * and check whether there are newer versions of the pack available in the repository.
+ *
+ * <li>Producer represents a specific artifact over the course of its evolution
+ * (i.e. any version of the artifact)
+ * <li>Channel represents a backward compatible stream of version updates
+ * <li>Frequency represents the lowest acceptable quality/qualifier of the artifact version
+ * acceptable as an update (frequency is optional and if not provided defaults to the Final
+ * or GA release)
+ * <li>Version is a specific release version of the pack
+ *
+ * Producer and version is what is actually necessary to resolve any specific pack.
+ *
+ * Channel and frequency are used only during updates to determine the next backward
+ * compatible version of the pack.
  *
  * @author Alexey Loubyansky
  */

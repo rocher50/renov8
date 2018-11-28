@@ -23,12 +23,27 @@ import org.jboss.renov8.PackVersion;
 import org.jboss.renov8.Renov8Exception;
 
 /**
+ * Repository and application-specific  pack resolver which
+ * return an implementation of Pack given its location.
  *
  * @author Alexey Loubyansky
  */
 public interface PackResolver<P extends Pack> {
 
+    /**
+     * Resolves a pack given its location.
+     *
+     * @param location  pack location
+     * @return  resolved pack
+     * @throws Renov8Exception  in case of a failure
+     */
     P resolve(PackLocation location) throws Renov8Exception;
 
+    /**
+     * Returns the latest available version of the pack given its location
+     * @param location  pack location
+     * @return  the latest available version
+     * @throws Renov8Exception  in case of a failure
+     */
     PackVersion getLatestVersion(PackLocation location) throws Renov8Exception;
 }

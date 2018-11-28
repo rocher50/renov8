@@ -54,7 +54,7 @@ public class TestPackResolver implements PackResolver<TestPack> {
         if(!Files.exists(p)) {
             throw new Renov8Exception("Failed to locate " + location);
         }
-        System.out.println("Load pack " + location);
+        //System.out.println("Load pack " + location);
         try {
             return TestPackSpecXmlParser.parse(p);
         } catch (Exception e) {

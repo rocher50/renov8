@@ -14,25 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.renov8.xml;
+
+package org.jboss.renov8.resolver;
+
+import org.jboss.renov8.Pack;
+import org.jboss.renov8.Renov8Exception;
 
 /**
+ * Handles packs from the resolved distribution configuration.
  *
- * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
+ * @author Alexey Loubyansky
  */
-public class AttributeValue {
+public interface PackHandler<P extends Pack> {
 
-    private String value;
-
-    public AttributeValue(String value){
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
+    void handle(P pack) throws Renov8Exception;
 }

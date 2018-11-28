@@ -29,9 +29,6 @@ import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.test.StrVersion;
 import org.jboss.renov8.test.TestPack;
 import org.jboss.renov8.test.TestPack.Builder;
-import org.jboss.renov8.xml.ParsingUtils;
-import org.jboss.renov8.xml.PlugableXmlParser;
-import org.jboss.renov8.xml.XmlNameProvider;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 
 /**

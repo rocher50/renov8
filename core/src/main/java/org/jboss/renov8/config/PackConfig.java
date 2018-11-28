@@ -20,6 +20,12 @@ package org.jboss.renov8.config;
 import org.jboss.renov8.PackLocation;
 
 /**
+ * This class represents a dependency on a pack.
+ * Dependencies can be direct or transitive.
+ * Transitive dependencies normally won't be expressed in the original
+ * configuration. They exist only to be able to override a transitive dependency
+ * versions and still handle them as transitive during updates (which mainly means
+ * that they may go away with the next version update of the direct dependencies).
  *
  * @author Alexey Loubyansky
  */

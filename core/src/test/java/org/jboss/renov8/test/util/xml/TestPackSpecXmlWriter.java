@@ -23,8 +23,6 @@ import org.jboss.renov8.Pack;
 import org.jboss.renov8.PackLocation;
 import org.jboss.renov8.config.PackConfig;
 import org.jboss.renov8.test.util.xml.TestPackSpecXmlParser10.Element;
-import org.jboss.renov8.xml.BaseXmlWriter;
-import org.jboss.renov8.xml.ElementNode;
 
 /**
  *

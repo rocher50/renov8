@@ -14,34 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.renov8;
+package org.jboss.renov8.test.util.xml;
 
-import java.util.List;
-
-import org.jboss.renov8.config.PackConfig;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
- * An artifact that can be provisioned
  *
- * @author Alexey Loubyansky
+ * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  */
-public interface Pack {
+public abstract class Node {
 
-    PackLocation getLocation();
+    public abstract void marshall(XMLStreamWriter writer) throws XMLStreamException;
 
-    /**
-     * Whether it has dependencies on other provisioning artifacts
-     *
-     * @return  true if this pack has dependencies on other packs,
-     * otherwise false
-     */
-    boolean hasDependencies();
-
-    /**
-     * Dependencies on other packs
-     *
-     * @return  a list of packs this pack depends on, or an empty list
-     * in case this pack has no dependencies
-     */
-    List<PackConfig> getDependencies();
+    public boolean hasContent() {
+        return true;
+    }
 }

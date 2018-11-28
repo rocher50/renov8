@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import javax.xml.stream.XMLStreamException;
 
 import org.jboss.renov8.test.TestPack;
-import org.jboss.renov8.xml.XmlParsers;
 
 /**
  *

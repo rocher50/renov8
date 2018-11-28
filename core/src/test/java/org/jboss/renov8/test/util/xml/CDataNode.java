@@ -14,15 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.renov8.test.util.xml;
 
-package org.jboss.renov8.xml;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
- * A common parent for Element and Attribute enums.
  *
- * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
+ * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  */
-public interface XmlNameProvider {
-    String getNamespace();
-    String getLocalName();
+public class CDataNode extends Node {
+    private final String cdata;
+
+    public CDataNode(final String cdata) {
+        this.cdata = cdata;
+    }
+
+    @Override
+    public void marshall(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeCData(cdata);
+    }
 }

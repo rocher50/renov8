@@ -14,24 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.renov8.xml;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+package org.jboss.renov8.test.util.xml;
 
 /**
+ * A common parent for Element and Attribute enums.
  *
- * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
+ * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
-public class CommentNode extends Node {
-    private final String comment;
-
-    public CommentNode(final String comment) {
-        this.comment = comment;
-    }
-
-    @Override
-    public void marshall(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeComment(comment);
-    }
+public interface XmlNameProvider {
+    String getNamespace();
+    String getLocalName();
 }

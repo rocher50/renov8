@@ -14,24 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.renov8.xml;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+package org.jboss.renov8.test.util.xml;
 
 /**
  *
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  */
-public class CDataNode extends Node {
-    private final String cdata;
+public class AttributeValue {
 
-    public CDataNode(final String cdata) {
-        this.cdata = cdata;
+    private String value;
+
+    public AttributeValue(String value){
+        this.value = value;
     }
 
-    @Override
-    public void marshall(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeCData(cdata);
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }
